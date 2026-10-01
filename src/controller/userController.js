@@ -1,5 +1,7 @@
 import { Router  } from "express";
-import { buscarUserByID, cadastrarUsuario } from "../service/userService.js";
+import { buscarUserByID, cadastrarUsuario} from "../service/userService.js";
+import { loginUser } from "../service/userService.js";
+
 const endpoints = Router();
 
 endpoints.post('/User', async (req, resp) => {
@@ -30,6 +32,25 @@ endpoints.get('/usuario', async (req, resp) => {
     }
 
     
+
+})
+
+endpoints.post ('/login', async (req, resp) => {
+
+    try {
+        
+        let email = req.body.email;
+        let senha = req.body.senha;
+
+        let usuario = await loginUser(email, senha);
+        resp.send({
+            mensagem: `Seja bem-vindo, ${usuario.nome}!`,
+            usuario: usuario
+        });
+
+    } catch (error) {
+        resp.status(400).send(ErrorDefault(error))
+    }
 
 })
 
