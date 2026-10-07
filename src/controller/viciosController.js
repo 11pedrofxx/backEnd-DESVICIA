@@ -31,12 +31,17 @@ endpoints.get ('/listarvicios', async (req, resp) => {
 
 })
 
-endpoints.delete ('/deletar/:id', async (req, resp) => {
+endpoints.delete ('/vicios/:id', async (req, resp) => {
 
     try {
         let id = req.params.id
         let linhasAfetadas = await db.deleteVicios(id)
-        resp.send (linhasAfetadas)
+        resp.send ({
+
+            msg: "Vicio deletado com sucesso.",
+            linhasAfetadas: linhasAfetadas
+
+        })
     } catch (error) {
 
         resp.status(400).send(ErrorDefault(error))
@@ -44,5 +49,7 @@ endpoints.delete ('/deletar/:id', async (req, resp) => {
     }
 
 })
+
+
 
 export default endpoints
