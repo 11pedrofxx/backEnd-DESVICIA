@@ -1,4 +1,5 @@
 import connection from "./connection.js"
+
 export async function vincularVicio(UserID, VicioID, dataInicio) {
     
     const command = `
@@ -13,3 +14,14 @@ export async function vincularVicio(UserID, VicioID, dataInicio) {
     return resp;
 
 }
+
+export async function consultarVinculo(usuarioId, vicioId) {
+    const command = `
+        SELECT * FROM usuarios_vicios 
+        WHERE usuario_id = ? AND vicio_id = ?
+    `;
+    let [linhas] = await connection.query(command, [usuarioId, vicioId]);
+    return linhas[0];
+}
+
+

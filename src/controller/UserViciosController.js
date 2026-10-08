@@ -17,4 +17,19 @@ endpoints.post ('/userVicio', async (req, resp) => {
     }
 })
 
+endpoints.post('/userVicioPersonalizado', async (req, resp) => {
+    try {
+        let { UserID, nomeVicio, dataInicio } = req.body;
+        
+        let id = await DB.Vicio(UserID, null, nomeVicio, dataInicio);
+        
+        resp.send({
+            msg: "Vício personalizado cadastrado e vinculado com sucesso!",
+            id: id
+        });
+    } catch (error) {
+        resp.status(400).send(ErrorDefault(error));
+    }
+});
+
 export default endpoints;
