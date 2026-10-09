@@ -82,3 +82,18 @@ export async function editarCheckin(dados, id) {
     let linhasafetadas = info.affectedRows;
     return linhasafetadas;
 }
+
+export async function deletarCheckin(id) {
+
+    const command = `
+    
+    delete from checkins_diarios
+    where id = ?
+
+    `
+
+    let resposta = await connection.query(command , [id]);
+    let info = resposta[0];
+    return info.affectedRows;
+
+}

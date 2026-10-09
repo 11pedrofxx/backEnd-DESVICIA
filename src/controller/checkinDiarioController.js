@@ -1,5 +1,5 @@
 import { Router } from "express"
-import * as db from '../service/checkinDiario.js';
+import * as db from "../service/checkinDiarioService.js"
 
 const endpoints = Router();
 
@@ -42,6 +42,34 @@ endpoints.put ('/checkin/:id' , async (req, resp) => {
         let id = req.params.id;
         let linhasafetadas = await db.editCheckin(dados, id);
         resp.send(linhasafetadas);
+
+    } catch (error) {
+        resp.status(400).send(ErrorDefault(error))
+    }
+
+})
+
+endpoints.delete ('/checkin/:id' , async (req, resp) => {
+
+    try {
+        
+        let id = req.params.id
+        let linhasAfetadas = await db.deleteCheckin(id);
+        resp.send(linhasAfetadas);
+
+    } catch (error) {
+        resp.status(400).send(ErrorDefault(error))
+    }
+
+})
+
+endpoints.get('/ofensiva/:id' , async (req, resp) => {
+
+    try {
+        
+        let id = req.params.id;
+        let status = await db.EstatisticaOfensiva(id);
+        resp.send(status)
 
     } catch (error) {
         resp.status(400).send(ErrorDefault(error))
