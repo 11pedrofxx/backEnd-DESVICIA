@@ -1,19 +1,24 @@
 import * as db from '../repository/checkinDiarioRepository.js';
 import checkinValidation from '../validation/checkinValidation.js';
+import { SalvarCheckinGatilhoService } from './CheckinGatilhoService.js';
 
 export async function CheckinDiarioService(dados) {
 
     checkinValidation(dados);
     let data_existente = await db.validarData(dados.usuario_id, dados.data_checkin);
     if (data_existente) {
-
         throw new Error(`Você já fez o seu Checkin Diário. Fique tranquilo(a)`);
-
     }
 
     let id = await db.fazerCheckin(dados);
-    return id;
 
+    if (dados.gatilhos_sentidos && dados.gatilhos_sentidos.length > 0) {
+        for (let gatilho_id of dados.gatilhos_sentidos) {
+            await SalvarCheckinGatilhoService(id, gatilho_id);
+        }
+    }
+
+    return id;
 }
 
 export async function getCheckins(id) { 

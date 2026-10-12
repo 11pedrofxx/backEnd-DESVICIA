@@ -38,7 +38,7 @@ endpoints.get('/usuario', async (req, resp) => {
 endpoints.post ('/login', async (req, resp) => {
 
     try {
-        
+         
         let email = req.body.email;
         let senha = req.body.senha;
 
@@ -53,7 +53,5 @@ endpoints.post ('/login', async (req, resp) => {
     }
 
 })
-
-
 
 export default endpoints

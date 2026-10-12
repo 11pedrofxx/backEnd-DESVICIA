@@ -3,6 +3,7 @@ import VicioController from './controller/viciosController.js';
 import UserVicio from './controller/UserViciosController.js'
 import CheckinDiario from './controller/checkinDiarioController.js'
 import gatilhos from './controller/gatilhosController.js'
+import CheckinGatilho from './controller/checkinGatilhoController.js'
 
 
 export function AddRoutes (api) {
@@ -12,5 +13,6 @@ export function AddRoutes (api) {
     api.use(UserVicio)
     api.use(CheckinDiario)
     api.use(gatilhos)
+    api.use(CheckinGatilho)
 
 }

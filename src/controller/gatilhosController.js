@@ -26,7 +26,7 @@ endpoints.get('/gatilhos', async (req, resp) =>{
         resp.send(gatilhos)
 
     } catch (error) {
-         resp.status(400).send(ErrorDefault(error))
+        resp.status(400).send(ErrorDefault(error))
     }
 
 })
