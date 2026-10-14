@@ -1,5 +1,5 @@
 import { Router } from "express";
-import * as db from '../service/contatosService.js';
+import * as db from '../service/contatosEmergService.js';
 
 const endpoints = Router();
 
@@ -11,14 +11,13 @@ endpoints.post('/contato', async (req, resp) => {
 
         let idInserido = await db.adicionarContato(usuario_id, nome, telefone);
 
-        resp.send({
-            msg: "Contato de emergência guardado com sucesso!",
+        resp.status(201).send({
+            msg: "Contato de emergência salvo com sucesso!",
             id: idInserido
         });
 
     } catch (error) {
-        // Usa a mesma função global de erro dos teus exemplos
-        resp.status(400).send(ErrorDefault(error));
+       resp.status(400).send(ErrorDefault(error))
     }
 });
 
@@ -27,10 +26,10 @@ endpoints.get('/contatos/:idUsuario', async (req, resp) => {
         let idUsuario = req.params.idUsuario;
         let contatos = await db.listarContatos(idUsuario);
         
-        resp.send(contatos);
+        resp.status(200).send(contatos);
 
     } catch (error) {
-        resp.status(400).send(ErrorDefault(error));
+        resp.status(400).send(ErrorDefault(error))
     }
 });
 
@@ -39,13 +38,13 @@ endpoints.delete('/contatos/:id', async (req, resp) => {
         let id = req.params.id;
         let linhasAfetadas = await db.removerContato(id);
         
-        resp.send({
-            msg: "Contacto de emergência eliminado com sucesso.",
+        resp.status(200).send({
+            msg: "Contato de emergência removido com sucesso.",
             linhasAfetadas: linhasAfetadas
         });
 
     } catch (error) {
-        resp.status(400).send(ErrorDefault(error));
+        resp.status(400).send(ErrorDefault(error))
     }
 });
 

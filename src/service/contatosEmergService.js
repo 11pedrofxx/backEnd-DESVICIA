@@ -1,19 +1,16 @@
-import * as db from '../repository/contatosRepository.js';
+import * as db from '../repository/contatosEmergRepository.js'
 
 export async function adicionarContato(usuario_id, nome, telefone) {
-    // Validações idênticas ao vosso padrão
-    if (!usuario_id) {
-        throw new Error('O ID do utilizador é obrigatório.');
+    if (!usuario_id || !nome || !telefone) {
+        throw new Error("Todos os campos (usuário, nome e telefone) são obrigatórios.");
     }
-    if (!nome) {
-        throw new Error('O nome do contacto é obrigatório.');
-    }
-    if (!telefone) {
-        throw new Error('O telefone do contacto é obrigatório.');
+    let contatoExistente = await db.buscarContatoPorTelefone(usuario_id, telefone);
+    if (contatoExistente) {
+        throw new Error("Você já cadastrou um contato com esse número de telefone.");
     }
 
-    let idInserido = await db.inserirContato(usuario_id, nome, telefone);
-    return idInserido;
+    let id = await db.inserirContato(usuario_id, nome, telefone);
+    return id;
 }
 
 export async function listarContatos(usuario_id) {

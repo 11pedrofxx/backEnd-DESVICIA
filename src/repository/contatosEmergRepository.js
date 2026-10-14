@@ -32,3 +32,12 @@ export async function deletarContato(id) {
     let linhasAfetadas = info.affectedRows;
     return linhasAfetadas;
 }
+
+export async function buscarContatoPorTelefone(usuario_id, telefone) {
+    const command = `
+        SELECT * FROM contatos_emergencia 
+        WHERE usuario_id = ? AND telefone = ?;
+    `;
+    let resposta = await connection.query(command, [usuario_id, telefone]);
+    return resposta[0][0];
+}
