@@ -6,6 +6,7 @@ import gatilhos from './controller/gatilhosController.js';
 import Checkingatilho from './controller/checkingatilhoController.js';
 import Estrategias from './controller/estrategiasController.js';
 import Contatos from './controller/contatosEmergController.js'
+import Conquistas from './controller/ConquistasController.js'
 
 export function AddRoutes(api) {
     api.use(UserController);
@@ -16,4 +17,5 @@ export function AddRoutes(api) {
     api.use(Checkingatilho);
     api.use(Estrategias);
     api.use(Contatos)
+    api.use(Conquistas)
 };

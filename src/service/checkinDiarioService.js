@@ -1,6 +1,7 @@
 import * as db from '../repository/checkinDiarioRepository.js';
 import checkinValidation from '../validation/checkinValidation.js';
 import { SalvarCheckinGatilhoService } from './CheckinGatilhoService.js';
+import { adicionarConquistaService } from './ConquistasService.js';
 
 export async function CheckinDiarioService(dados) {
 
@@ -16,6 +17,28 @@ export async function CheckinDiarioService(dados) {
         for (let gatilho_id of dados.gatilhos_sentidos) {
             await SalvarCheckinGatilhoService(id, gatilho_id);
         }
+    }
+
+    let status = await EstatisticaOfensiva(dados.usuario_id);
+    let diasAtuais = status.ofensiva_atual;
+
+    if (diasAtuais >= 1) {
+        await adicionarConquistaService(dados.usuario_id, 3);
+    }
+    if (diasAtuais >= 3) {
+        await adicionarConquistaService(dados.usuario_id, 4);
+    }
+    if (diasAtuais >= 7) {
+        await adicionarConquistaService(dados.usuario_id, 5);
+    }
+    if (diasAtuais >= 30) {
+        await adicionarConquistaService(dados.usuario_id, 6);
+    }
+    if (diasAtuais >= 60) {
+        await adicionarConquistaService(dados.usuario_id, 7);
+    }
+    if (diasAtuais >= 100) {
+        await adicionarConquistaService(dados.usuario_id, 8);
     }
 
     return id;
