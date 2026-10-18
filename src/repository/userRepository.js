@@ -42,3 +42,17 @@ export async function buscarUsuarioPorID (id) {
     return linhas[0];
 
 }
+
+export async function codigoRecuperacao(codigo, expiracao, id) {
+    
+    const command = `
+    update usuarios 
+        set codigo_recuperacao = ?, 
+        expiracao_codigo = ? 
+    where id = ?;
+    `
+
+    let resposta = await connection.query(command, [codigo, expiracao, id])
+    let info = resposta[0];
+    return info.affectedRows
+}

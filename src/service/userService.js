@@ -1,5 +1,6 @@
 import bcrypt from 'bcrypt';
 import * as db from '../repository/userRepository.js';
+import crypto from 'crypto'
 
 export async function cadastrarUsuario(usuario) {
 
@@ -66,4 +67,52 @@ export async function loginUser(email, senha) {
     delete usuario.senha_hash;
 
     return usuario;
+}
+
+export async function EsquecerSenha (email) {
+    let emailLimpo = email.trim().toLowerCase();
+    let usuarioExistente = await db.buscarUsuarioPorEmail(emailLimpo);
+
+    if (usuarioExistente) {
+
+        let id = usuarioExistente.id
+        const codigo = crypto.randomInt(100000, 1000000).toString();
+        const expiracao = new Date(Date.now() + 10 * 60 * 1000);
+        let linhasAfetadas = await db.codigoRecuperacao(codigo, expiracao, id);
+        return {
+            linhasAfetadas: linhasAfetadas,
+            codigo: codigo
+        }
+
+    }
+
+    else {
+        throw new Error('Email não encontrado. Tente novamente')
+    }
+
+    
+}
+
+export async function ValidarCodigo(email, codigoDigitado) {
+
+    let emailLimpo = email.trim().toLowerCase();
+
+    let usuarioExistente = await db.buscarUsuarioPorEmail(emailLimpo);
+    if (usuarioExistente) {
+
+        let codigo = String(usuarioExistente.codigo_recuperacao)
+        if (String(codigoDigitado) !== codigo) {
+            throw new Error ('O código está incorreto ou expirou, tente novamente')
+        }
+
+        if (new Date() > new Date(usuarioExistente.expiracao_codigo)) {
+            throw new Error('O código de verificação expirou. Solicite um novo.');
+        }
+        
+    }
+
+    else {
+        throw new Error('Não foi possível encontrar nenhum usuário com esse email')
+    }
+    return true
 }
