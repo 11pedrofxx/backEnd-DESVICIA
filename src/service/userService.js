@@ -2,8 +2,13 @@ import bcrypt from 'bcrypt';
 import * as db from '../repository/userRepository.js';
 import crypto from 'crypto'
 import { OAuth2Client } from 'google-auth-library';
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 export async function cadastrarUsuario(usuario) {
+
+    if (!usuario.senha || usuario.senha.trim().length < 6) {
+        throw new Error('A senha é obrigatória e deve ter pelo menos 6 caracteres.');
+    }
 
     let emailLimpo = usuario.email.trim().toLowerCase();
 
@@ -45,18 +50,50 @@ export async function buscarUserByID(id) {
     return usuario;
 
 }
-
 export async function loginUser(email, senha) {
-    
     let emailLimpo = email.trim().toLowerCase();
     let usuario = await db.buscarUsuarioPorEmail(emailLimpo);
-        if (!usuario) {
-            throw new Error('E-mail ou senha incorretos.');
-        }
+
+    if (!usuario || !usuario.senha_hash) {
+        throw new Error('E-mail ou senha incorretos.');
+    }
+
     let senhaCorreta = await bcrypt.compare(senha, usuario.senha_hash);
-        if (!senhaCorreta) {
-            throw new Error('E-mail ou senha incorretos.');
-        }
+    if (!senhaCorreta) {
+        throw new Error('E-mail ou senha incorretos.');
+    }
+
+    delete usuario.senha_hash;
+    delete usuario.codigo_recuperacao;
+    delete usuario.expiracao_codigo;
+
+    return usuario;
+}
+export async function loginComGoogle(googleToken) {
+    if (!googleToken) {
+        throw new Error('Token do Google não informado')
+    }
+    const ticket = await client.verifyIdToken({
+        idToken: googleToken,
+        audience: process.env.GOOGLE_CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+    const emailGoogle = payload.email;
+    const nomeGoogle = payload.name;
+
+    let usuario = await db.buscarUsuarioPorEmail(emailGoogle);
+
+    if (!usuario) {
+        const novoUsuario = {
+            nome: nomeGoogle,
+            email: emailGoogle,
+            senha_hash: null
+        };
+
+        const idInserido = await db.inserirUsuario(novoUsuario);
+        usuario = await db.buscarUsuarioPorID(idInserido);
+    }
 
     delete usuario.senha_hash;
     delete usuario.codigo_recuperacao;

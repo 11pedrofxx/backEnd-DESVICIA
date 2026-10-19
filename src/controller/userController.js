@@ -33,8 +33,9 @@ endpoints.post('/login', async (req, resp) => {
     try {
         let email = req.body.email;
         let senha = req.body.senha;
-        let token = req.body.token;
-        let resposta = await validarRecaptcha(token)
+        let captchaToken = req.body.captchaToken;
+        
+        let resposta = await validarRecaptcha(captchaToken);
         if (!resposta) {
             throw new Error('Confirmação do reCAPTCHA pendente ou inválida.');
         }
@@ -76,6 +77,20 @@ endpoints.put('/redefinir-senha', async (req, resp) => {
         let SenhaNova = req.body.senha;
         let linhasAfetadas = await db.MudarSenha(email, SenhaNova);
         resp.send({ linhasAfetadas });
+    } catch (error) {
+        resp.status(400).send(ErrorDefault(error));
+    }
+});
+endpoints.post('/login/google', async (req, resp) => {
+    try {
+        let googleToken = req.body.googleToken;
+        let usuario = await db.loginComGoogle(googleToken);
+
+        resp.send({
+            mensagem: `Seja bem-vindo, ${usuario.nome}!`,
+            usuario: usuario
+        });
+
     } catch (error) {
         resp.status(400).send(ErrorDefault(error));
     }
