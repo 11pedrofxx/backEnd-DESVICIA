@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt';
 import * as db from '../repository/userRepository.js';
 import crypto from 'crypto'
+import { OAuth2Client } from 'google-auth-library';
 
 export async function cadastrarUsuario(usuario) {
 
@@ -48,21 +49,14 @@ export async function buscarUserByID(id) {
 export async function loginUser(email, senha) {
     
     let emailLimpo = email.trim().toLowerCase();
-
     let usuario = await db.buscarUsuarioPorEmail(emailLimpo);
-
-   
-    if (!usuario) {
-        throw new Error('E-mail ou senha incorretos.');
-    }
-
-   
+        if (!usuario) {
+            throw new Error('E-mail ou senha incorretos.');
+        }
     let senhaCorreta = await bcrypt.compare(senha, usuario.senha_hash);
-
-    
-    if (!senhaCorreta) {
-        throw new Error('E-mail ou senha incorretos.');
-    }
+        if (!senhaCorreta) {
+            throw new Error('E-mail ou senha incorretos.');
+        }
 
     delete usuario.senha_hash;
     delete usuario.codigo_recuperacao;
