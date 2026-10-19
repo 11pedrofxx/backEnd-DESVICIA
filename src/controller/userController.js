@@ -1,5 +1,5 @@
 import { Router  } from "express";
-import { buscarUserByID, cadastrarUsuario, EsquecerSenha, ValidarCodigo} from "../service/userService.js";
+import { buscarUserByID, cadastrarUsuario, EsquecerSenha, MudarSenha, ValidarCodigo} from "../service/userService.js";
 import { loginUser } from "../service/userService.js";
 
 const endpoints = Router();
@@ -73,6 +73,19 @@ endpoints.post('/validar-codigo', async (req, resp) => {
         let codigoDigitado = req.body.codigoDigitado
         let validacao = await ValidarCodigo(email, codigoDigitado)
         resp.send(validacao);
+
+    } catch (error) {
+        resp.status(400).send(ErrorDefault(error))
+    }
+})
+
+endpoints.put('/redefinir-senha', async (req, resp) => {
+    try {
+        
+        let email = req.body.email;
+        let SenhaNova = req.body.senha
+        let linhasAfetadas = await MudarSenha(email, SenhaNova);
+        resp.send({linhasAfetadas});
 
     } catch (error) {
         resp.status(400).send(ErrorDefault(error))

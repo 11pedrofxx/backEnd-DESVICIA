@@ -56,3 +56,18 @@ export async function codigoRecuperacao(codigo, expiracao, id) {
     let info = resposta[0];
     return info.affectedRows
 }
+
+export async function RedefinirSenha (senha, id) {
+    
+    const command = `
+        update usuarios
+            set senha_hash = ?,
+            codigo_recuperacao = NULL,
+            expiracao_codigo = NULL
+        where id = ?
+    `
+
+    let resposta = await connection.query(command, [senha, id]);
+    let info = resposta[0];
+    return info.affectedRows
+}

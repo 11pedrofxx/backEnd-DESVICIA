@@ -65,6 +65,8 @@ export async function loginUser(email, senha) {
     }
 
     delete usuario.senha_hash;
+    delete usuario.codigo_recuperacao;
+    delete usuario.expiracao_codigo;
 
     return usuario;
 }
@@ -115,4 +117,21 @@ export async function ValidarCodigo(email, codigoDigitado) {
         throw new Error('Não foi possível encontrar nenhum usuário com esse email')
     }
     return true
+}
+
+export async function MudarSenha(email, SenhaNova) {
+
+    let emailLimpo = email.trim().toLowerCase();
+    let usuarioExistente = await db.buscarUsuarioPorEmail(emailLimpo);
+        if (!usuarioExistente) {
+            throw new Error('Nenhum usuário encontrado. Verifique se o email está correto');
+        }
+    let id = usuarioExistente.id
+        if (!SenhaNova) {
+            throw new Error('A nova senha deve ter pelo menos 6 caracteres.')
+        }
+    const senhaNovaCriptografada = await bcrypt.hash(SenhaNova, 10);
+    let linhasAfetadas = await db.RedefinirSenha(senhaNovaCriptografada, id);
+        return linhasAfetadas
+
 }
