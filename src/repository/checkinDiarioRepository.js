@@ -1,22 +1,20 @@
 import connection from './connection.js';
 
-export async function fazerCheckin (dados) {
-
+export async function fazerCheckin(idUsuario, dados) {
     const command = `   
         INSERT INTO checkins_diarios (
-        usuario_id,
-        data_checkin,
-        nivel_humor,
-        nivel_fissura,
-        foi_dia_dificil,
-        notas
-    )
-        VALUES ( ?, ?, ?, ?, ?, ?);
-    `
+            usuario_id,
+            data_checkin,
+            nivel_humor,
+            nivel_fissura,
+            foi_dia_dificil,
+            notas
+        )
+        VALUES (?, ?, ?, ?, ?, ?);
+    `;
 
     let resposta = await connection.query(command, [
-
-        dados.usuario_id,
+        idUsuario,
         dados.data_checkin,
         dados.nivel_humor,
         dados.nivel_fissura,
@@ -25,49 +23,38 @@ export async function fazerCheckin (dados) {
     ]);
 
     let info = resposta[0];
-    let id = info.insertId;
-    return id;
-
+    return info.insertId;
 }
 
-export async function validarData(usuario_id, data) {
-    
+export async function validarData(idUsuario, data) {
     const command = `
-    
-    select * from checkins_diarios
-    where usuario_id = ? and data_checkin = ?
-    
-    `
+        SELECT * FROM checkins_diarios
+         WHERE usuario_id = ? AND data_checkin = ?
+    `;
 
-    let [linhas] = await connection.query(command, [usuario_id, data]);
+    let [linhas] = await connection.query(command, [idUsuario, data]);
     return linhas[0];
-
 }
 
-export async function buscarCheckIns(id) {
-
+export async function buscarCheckIns(idUsuario) {
     const command = `
-    
-    select * from checkins_diarios
-    where usuario_id = ?
-    order by data_checkin desc;
+        SELECT * FROM checkins_diarios
+         WHERE usuario_id = ?
+      ORDER BY data_checkin DESC;
+    `;
 
-    `
-
-    const [linhas] = await connection.query(command, [id]);
+    const [linhas] = await connection.query(command, [idUsuario]);
     return linhas;
-
 }
 
-export async function editarCheckin(dados, id) {
-    
+export async function editarCheckin(dados, idCheckin, idUsuario) {
     const command = `
         UPDATE checkins_diarios
-        SET nivel_humor = ?,
-            nivel_fissura = ?,
-            foi_dia_dificil = ?,
-            notas = ?
-        WHERE id = ?
+           SET nivel_humor = ?,
+               nivel_fissura = ?,
+               foi_dia_dificil = ?,
+               notas = ?
+         WHERE id = ? AND usuario_id = ?
     `;
 
     let resposta = await connection.query(command, [
@@ -75,25 +62,21 @@ export async function editarCheckin(dados, id) {
         dados.nivel_fissura,
         dados.foi_dia_dificil,
         dados.notas,
-        id
+        idCheckin,
+        idUsuario
     ]);
 
     let info = resposta[0];
-    let linhasafetadas = info.affectedRows;
-    return linhasafetadas;
+    return info.affectedRows;
 }
 
-export async function deletarCheckin(id) {
-
+export async function deletarCheckin(idCheckin, idUsuario) {
     const command = `
-    
-    delete from checkins_diarios
-    where id = ?
+        DELETE FROM checkins_diarios
+         WHERE id = ? AND usuario_id = ?
+    `;
 
-    `
-
-    let resposta = await connection.query(command , [id]);
+    let resposta = await connection.query(command, [idCheckin, idUsuario]);
     let info = resposta[0];
     return info.affectedRows;
-
 }

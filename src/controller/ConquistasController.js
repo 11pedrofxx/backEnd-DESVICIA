@@ -1,33 +1,35 @@
 import { Router } from "express";
 import * as db from '../service/ConquistasService.js';
+import { getAuthentication } from "../utils/jwt.js";
 
 const endpoints = Router();
 
+endpoints.use(getAuthentication());
+
 endpoints.post('/conquistas/vincular', async (req, resp) => {
-
     try {
-        let usuario_id = req.body
-        let conquista_id = req.body
-        await db.adicionarConquistaService(usuario_id, conquista_id);
+        const idUsuario = req.user.id;
+        const { conquista_id } = req.body;
 
-        resp.status(201).send(
-            { msg: "Conquista processada com sucesso." }
-        );
-    } catch (error) {
-        resp.status(400).send(ErrorDefault(error))
-    }
-   
-})
+        await db.adicionarConquistaService(idUsuario, conquista_id);
 
-endpoints.get('/conquistas/:idUsuario', async (req, resp) => {
-    try {
-        let id = req.params.idUsuario;
-        let conquistas = await db.listarConquistasService(id);
-        
-        resp.status(200).send(conquistas);
+        resp.status(201).send({
+            msg: "Conquista processada com sucesso."
+        });
     } catch (error) {
-        resp.status(400).send({ erro: error.message });
+        resp.status(400).send(ErrorDefault(error));
     }
 });
 
-export default endpoints
+endpoints.get('/conquistas', async (req, resp) => {
+    try {
+        const idUsuario = req.user.id;
+        const conquistas = await db.listarConquistasService(idUsuario);
+
+        resp.status(200).send(conquistas);
+    } catch (error) {
+        resp.status(400).send(ErrorDefault(error));
+    }
+});
+
+export default endpoints;

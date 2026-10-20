@@ -1,80 +1,67 @@
 import { Router } from "express"
 import * as db from "../service/checkinDiarioService.js"
+import { getAuthentication } from "../utils/jwt.js";
 
 const endpoints = Router();
+endpoints.use(getAuthentication());
 
-endpoints.post ('/checkin' , async (req, resp) => {
-
+endpoints.post('/checkin', async (req, resp) => {
     try {
-        
+        let idUsuario = req.user.id;
         let dados = req.body;
-        let id = await db.CheckinDiarioService(dados);
+
+        let id = await db.CheckinDiarioService(idUsuario, dados);
         resp.send({
-
-            msg: `Checkin Diário feito com Sucesso.`
-
-        })
-
+            msg: `Checkin Diário feito com Sucesso.`,
+            id
+        });
     } catch (error) {
-        resp.status(400).send(ErrorDefault(error))
+        resp.status(400).send(ErrorDefault(error));
     }
+});
 
-})
-
-endpoints.get ('/buscarCheckins/:id', async (req, resp) => {
-
+endpoints.get('/buscarCheckins', async (req, resp) => {
     try {
-    let id = req.params.id;
-    let registro = await db.getCheckins(id);
-    resp.send (registro);
-
+        let idUsuario = req.user.id;
+        let registro = await db.getCheckins(idUsuario);
+        resp.send(registro);
     } catch (error) {
-        resp.status(400).send(ErrorDefault(error))
+        resp.status(400).send(ErrorDefault(error));
     }
+});
 
-})
-
-endpoints.put ('/checkin/:id' , async (req, resp) => {
-
+endpoints.put('/checkin/:id', async (req, resp) => {
     try {
-        
+        let idUsuario = req.user.id;
+        let idCheckin = req.params.id;
         let dados = req.body;
-        let id = req.params.id;
-        let linhasafetadas = await db.editCheckin(dados, id);
-        resp.send(linhasafetadas);
 
+        let linhasafetadas = await db.editCheckin(dados, idCheckin, idUsuario);
+        resp.send({ linhasafetadas });
     } catch (error) {
-        resp.status(400).send(ErrorDefault(error))
+        resp.status(400).send(ErrorDefault(error));
     }
+});
 
-})
-
-endpoints.delete ('/checkin/:id' , async (req, resp) => {
-
+endpoints.delete('/checkin/:id', async (req, resp) => {
     try {
-        
-        let id = req.params.id
-        let linhasAfetadas = await db.deleteCheckin(id);
-        resp.send(linhasAfetadas);
-
+        let idUsuario = req.user.id;
+        let idCheckin = req.params.id;
+        let linhasAfetadas = await db.deleteCheckin(idCheckin, idUsuario);
+        resp.send({ linhasAfetadas });
     } catch (error) {
-        resp.status(400).send(ErrorDefault(error))
+        resp.status(400).send(ErrorDefault(error));
     }
+});
 
-})
-
-endpoints.get('/ofensiva/:id' , async (req, resp) => {
-
+endpoints.get('/ofensiva', async (req, resp) => {
     try {
-        
-        let id = req.params.id;
-        let status = await db.EstatisticaOfensiva(id);
-        resp.send(status)
-
+        let idUsuario = req.user.id;
+        let status = await db.EstatisticaOfensiva(idUsuario);
+        resp.send(status);
     } catch (error) {
-        resp.status(400).send(ErrorDefault(error))
+        resp.status(400).send(ErrorDefault(error));
     }
-
-})
+});
 
 export default endpoints;

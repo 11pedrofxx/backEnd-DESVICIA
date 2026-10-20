@@ -1,33 +1,33 @@
-import * as db from '../repository/contatosEmergRepository.js'
+import * as db from '../repository/contatosEmergRepository.js';
 
-export async function adicionarContato(usuario_id, nome, telefone) {
-    if (!usuario_id || !nome || !telefone) {
+export async function adicionarContato(idUsuario, nome, telefone) {
+    if (!idUsuario || !nome || !telefone) {
         throw new Error("Todos os campos (usuário, nome e telefone) são obrigatórios.");
     }
-    let contatoExistente = await db.buscarContatoPorTelefone(usuario_id, telefone);
+    let contatoExistente = await db.buscarContatoPorTelefone(idUsuario, telefone);
     if (contatoExistente) {
         throw new Error("Você já cadastrou um contato com esse número de telefone.");
     }
 
-    let id = await db.inserirContato(usuario_id, nome, telefone);
+    let id = await db.inserirContato(idUsuario, nome, telefone);
     return id;
 }
 
-export async function listarContatos(usuario_id) {
-    if (!usuario_id) {
+export async function listarContatos(idUsuario) {
+    if (!idUsuario) {
         throw new Error('O ID do utilizador é obrigatório para listar os contactos.');
     }
 
-    let contatos = await db.consultarContatos(usuario_id);
+    let contatos = await db.consultarContatos(idUsuario);
     return contatos;
 }
 
-export async function removerContato(id) {
-    if (!id) {
+export async function removerContato(idContato, idUsuario) {
+    if (!idContato) {
         throw new Error('O ID do contacto é obrigatório.');
     }
 
-    let linhasAfetadas = await db.deletarContato(id);
+    let linhasAfetadas = await db.deletarContato(idContato, idUsuario);
     
     if (linhasAfetadas === 0) {
         throw new Error('Contacto não encontrado ou já foi eliminado.');
