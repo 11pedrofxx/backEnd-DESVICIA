@@ -1,24 +1,24 @@
 import * as db from '../repository/estrategiasRepository.js';
 import { validarEstrategia } from '../validation/EstrategiasValidation/Estrategias.js';
 
-export async function adicionarEstrategiaService(dados) {
-    
+export async function adicionarEstrategiaService(idUsuario, dados) {
     validarEstrategia(dados);
-    dados.personalizado = dados.usuario_id ? true : false;
-    let id = await db.inserirEstrategia(dados);
+    dados.usuario_id = idUsuario;
+    dados.personalizado = true;
+    let id = await db.inserirEstrategia(idUsuario, dados);
     return id;
 }
 
-export async function listarEstrategiasService(usuario_id) {
-    if (!usuario_id || isNaN(usuario_id)) {
+export async function listarEstrategiasService(idUsuario) {
+    if (!idUsuario || isNaN(idUsuario)) {
         throw new Error("ID do usuário inválido para a busca.");
     }
 
-    let estrategias = await db.buscarEstrategias(usuario_id);
+    let estrategias = await db.buscarEstrategias(idUsuario);
     return estrategias;
 }
 
-export async function deleteEstrategia(id) {
+export async function deleteEstrategia(id, idUsuario) {
     let estrategia = await db.buscarEstrategiaPorId(id);
     
     if (!estrategia) {
@@ -29,6 +29,10 @@ export async function deleteEstrategia(id) {
         throw new Error('Não podes apagar uma estratégia padrão do sistema.');
     }
 
-    let linhasafetadas = await db.deletarEstrategia(id);
+    if (estrategia.usuario_id !== Number(idUsuario)) {
+        throw new Error('Você não tem permissão para apagar esta estratégia.');
+    }
+
+    let linhasafetadas = await db.deletarEstrategia(id, idUsuario);
     return linhasafetadas;
 }

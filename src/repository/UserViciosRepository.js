@@ -1,27 +1,21 @@
-import connection from "./connection.js"
+import connection from "./connection.js";
 
-export async function vincularVicio(UserID, VicioID, dataInicio) {
-    
+export async function vincularVicio(idUsuario, vicioId, dataInicio) {
     const command = `
-    
-    INSERT INTO usuarios_vicios (usuario_id, vicio_id, data_inicio)
-    VALUES (?, ?, ?)
+        insert into usuarios_vicios (usuario_id, vicio_id, data_inicio)
+        values (?, ?, ?)
     `;
 
-    let resposta = await connection.query(command, [UserID, VicioID, dataInicio])
+    let resposta = await connection.query(command, [idUsuario, vicioId, dataInicio]);
     let info = resposta[0];
-    let resp = info.affectedRows;
-    return resp;
-
+    return info.affectedRows;
 }
 
-export async function consultarVinculo(usuarioId, vicioId) {
+export async function consultarVinculo(idUsuario, vicioId) {
     const command = `
-        SELECT * FROM usuarios_vicios 
-        WHERE usuario_id = ? AND vicio_id = ?
+        select * from usuarios_vicios 
+        where usuario_id = ? and vicio_id = ?
     `;
-    let [linhas] = await connection.query(command, [usuarioId, vicioId]);
+    let [linhas] = await connection.query(command, [idUsuario, vicioId]);
     return linhas[0];
 }
-
-

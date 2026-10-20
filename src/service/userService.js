@@ -1,11 +1,11 @@
 import bcrypt from 'bcrypt';
-import * as db from '../repository/userRepository.js';
-import crypto from 'crypto'
+import crypto from 'crypto';
 import { OAuth2Client } from 'google-auth-library';
+import * as db from '../repository/userRepository.js';
+
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 export async function cadastrarUsuario(usuario) {
-
     if (!usuario.senha || usuario.senha.trim().length < 6) {
         throw new Error('A senha é obrigatória e deve ter pelo menos 6 caracteres.');
     }
@@ -20,21 +20,17 @@ export async function cadastrarUsuario(usuario) {
     const senhaCriptografada = await bcrypt.hash(usuario.senha, 10);
 
     const UsuarioParaSalvar = {
-
-    nome: usuario.nome,
-    email: emailLimpo,
-    senha_hash: senhaCriptografada
-
-    }
+        nome: usuario.nome,
+        email: emailLimpo,
+        senha_hash: senhaCriptografada
+    };
 
     let id = await db.inserirUsuario(UsuarioParaSalvar);
 
-    return id
-
+    return id;
 }
 
 export async function buscarUserByID(id) {
-
     if (!id || isNaN(id)) {
         throw new Error('Esse id não existe ou está indisponivel');
     }
@@ -42,14 +38,12 @@ export async function buscarUserByID(id) {
     let usuario = await db.buscarUsuarioPorID(id);
 
     if (!usuario) {
-
         throw new Error('Usuário não encontrado.');
-
     }
     delete usuario.senha_hash;
     return usuario;
-
 }
+
 export async function loginUser(email, senha) {
     let emailLimpo = email.trim().toLowerCase();
     let usuario = await db.buscarUsuarioPorEmail(emailLimpo);
@@ -69,9 +63,10 @@ export async function loginUser(email, senha) {
 
     return usuario;
 }
+
 export async function loginComGoogle(googleToken) {
     if (!googleToken) {
-        throw new Error('Token do Google não informado')
+        throw new Error('Token do Google não informado');
     }
     const ticket = await client.verifyIdToken({
         idToken: googleToken,
@@ -102,67 +97,54 @@ export async function loginComGoogle(googleToken) {
     return usuario;
 }
 
-export async function EsquecerSenha (email) {
+export async function EsquecerSenha(email) {
     let emailLimpo = email.trim().toLowerCase();
     let usuarioExistente = await db.buscarUsuarioPorEmail(emailLimpo);
 
     if (usuarioExistente) {
-
-        let id = usuarioExistente.id
+        let id = usuarioExistente.id;
         const codigo = crypto.randomInt(100000, 1000000).toString();
         const expiracao = new Date(Date.now() + 10 * 60 * 1000);
         let linhasAfetadas = await db.codigoRecuperacao(codigo, expiracao, id);
         return {
             linhasAfetadas: linhasAfetadas,
             codigo: codigo
-        }
-
+        };
+    } else {
+        throw new Error('Email não encontrado. Tente novamente');
     }
-
-    else {
-        throw new Error('Email não encontrado. Tente novamente')
-    }
-
-    
 }
 
 export async function ValidarCodigo(email, codigoDigitado) {
-
     let emailLimpo = email.trim().toLowerCase();
 
     let usuarioExistente = await db.buscarUsuarioPorEmail(emailLimpo);
     if (usuarioExistente) {
-
-        let codigo = String(usuarioExistente.codigo_recuperacao)
+        let codigo = String(usuarioExistente.codigo_recuperacao);
         if (String(codigoDigitado) !== codigo) {
-            throw new Error ('O código está incorreto ou expirou, tente novamente')
+            throw new Error('O código está incorreto ou expirou, tente novamente');
         }
 
         if (new Date() > new Date(usuarioExistente.expiracao_codigo)) {
             throw new Error('O código de verificação expirou. Solicite um novo.');
         }
-        
+    } else {
+        throw new Error('Não foi possível encontrar nenhum usuário com esse email');
     }
-
-    else {
-        throw new Error('Não foi possível encontrar nenhum usuário com esse email')
-    }
-    return true
+    return true;
 }
 
 export async function MudarSenha(email, SenhaNova) {
-
     let emailLimpo = email.trim().toLowerCase();
     let usuarioExistente = await db.buscarUsuarioPorEmail(emailLimpo);
-        if (!usuarioExistente) {
-            throw new Error('Nenhum usuário encontrado. Verifique se o email está correto');
-        }
-    let id = usuarioExistente.id
-        if (!SenhaNova) {
-            throw new Error('A nova senha deve ter pelo menos 6 caracteres.')
-        }
+    if (!usuarioExistente) {
+        throw new Error('Nenhum usuário encontrado. Verifique se o email está correto');
+    }
+    let id = usuarioExistente.id;
+    if (!SenhaNova || SenhaNova.trim().length < 6) {
+        throw new Error('A nova senha deve ter pelo menos 6 caracteres.');
+    }
     const senhaNovaCriptografada = await bcrypt.hash(SenhaNova, 10);
     let linhasAfetadas = await db.RedefinirSenha(senhaNovaCriptografada, id);
-        return linhasAfetadas
-
+    return linhasAfetadas;
 }

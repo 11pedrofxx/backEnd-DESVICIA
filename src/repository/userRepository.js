@@ -2,8 +2,8 @@ import connection from './connection.js';
 
 export async function inserirUsuario(usuario) {
     const command = `
-        INSERT INTO usuarios (nome, email, senha_hash) 
-        VALUES (?, ?, ?)
+        insert into usuarios (nome, email, senha_hash) 
+        values (?, ?, ?)
     `;
     
     const [result] = await connection.query(command, [
@@ -15,59 +15,49 @@ export async function inserirUsuario(usuario) {
     return result.insertId;
 }
 
-export async function buscarUsuarioPorEmail (email) {
-
+export async function buscarUsuarioPorEmail(email) {
     const command = `
-    
-    select * from usuarios
-    where LOWER(TRIM(email)) = ?
-
-    `
+        select * from usuarios
+        where lower(trim(email)) = ?
+    `;
 
     const [linhas] = await connection.query(command, [email]);
     return linhas[0];
-
 }
 
-export async function buscarUsuarioPorID (id) {
-
+export async function buscarUsuarioPorID(id) {
     const command = `
+        select * from usuarios
+        where id = ?
+    `;
     
-    select * from usuarios
-    where id = ?
-
-    `
-    
-    const [linhas] = await connection.query(command, [id])
+    const [linhas] = await connection.query(command, [id]);
     return linhas[0];
-
 }
 
 export async function codigoRecuperacao(codigo, expiracao, id) {
-    
     const command = `
-    update usuarios 
-        set codigo_recuperacao = ?, 
-        expiracao_codigo = ? 
-    where id = ?;
-    `
+        update usuarios 
+           set codigo_recuperacao = ?, 
+               expiracao_codigo = ? 
+         where id = ?
+    `;
 
-    let resposta = await connection.query(command, [codigo, expiracao, id])
+    let resposta = await connection.query(command, [codigo, expiracao, id]);
     let info = resposta[0];
-    return info.affectedRows
+    return info.affectedRows;
 }
 
-export async function RedefinirSenha (senha, id) {
-    
+export async function RedefinirSenha(senha, id) {
     const command = `
         update usuarios
-            set senha_hash = ?,
-            codigo_recuperacao = NULL,
-            expiracao_codigo = NULL
-        where id = ?
-    `
+           set senha_hash = ?,
+               codigo_recuperacao = null,
+               expiracao_codigo = null
+         where id = ?
+    `;
 
     let resposta = await connection.query(command, [senha, id]);
     let info = resposta[0];
-    return info.affectedRows
+    return info.affectedRows;
 }
