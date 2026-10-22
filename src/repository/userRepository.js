@@ -61,3 +61,30 @@ export async function RedefinirSenha(senha, id) {
     let info = resposta[0];
     return info.affectedRows;
 }
+
+export async function verificarApresentacao(idUsuario) {
+    const command = `
+        select concluida 
+        from apresentacao 
+        where usuario_id = ?
+    `;
+    const [linhas] = await connection.query(command, [idUsuario]);
+    
+    if (linhas.length > 0) {
+        return linhas[0].concluida;
+    } else {
+        return 0;
+    }
+}
+
+export async function concluirApresentacao(idUsuario) {
+    const command = `
+        insert into apresentacao (usuario_id, concluida, data_conclusao) 
+        values (?, true, now())
+        on duplicate key update 
+            concluida = true, 
+            data_conclusao = now()
+    `;
+    const [result] = await connection.query(command, [idUsuario]);
+    return result.affectedRows;
+}

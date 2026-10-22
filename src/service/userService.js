@@ -148,3 +148,20 @@ export async function MudarSenha(email, SenhaNova) {
     let linhasAfetadas = await db.RedefinirSenha(senhaNovaCriptografada, id);
     return linhasAfetadas;
 }
+
+export async function checarStatusApresentacao(idUsuario) {
+    let status = await db.verificarApresentacao(idUsuario);
+    
+    if (status === 1) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+export async function marcarApresentacaoComoConcluida(idUsuario) {
+    if (!idUsuario || isNaN(idUsuario)) {
+        throw new Error('Identificador de utilizador inválido.');
+    }
+    await db.concluirApresentacao(idUsuario);
+}

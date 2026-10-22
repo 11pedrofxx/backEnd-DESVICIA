@@ -105,4 +105,23 @@ endpoints.get('/usuario', getAuthentication(), async (req, resp) => {
     }
 });
 
+endpoints.get('/apresentacao/status', getAuthentication(), async (req, resp) => {
+    try {
+        let idUsuario = req.user.id;
+        let terminou = await db.checarStatusApresentacao(idUsuario);
+        resp.send({ viuApresentacao: terminou });
+    } catch (error) {
+        resp.status(400).send(ErrorDefault(error));
+    }
+});
+
+endpoints.post('/apresentacao/concluir', getAuthentication(), async (req, resp) => {
+    try {
+        let idUsuario = req.user.id;
+        await db.marcarApresentacaoComoConcluida(idUsuario);
+        resp.send({ mensagem: "Apresentação concluída!" });
+    } catch (error) {
+        resp.status(400).send(ErrorDefault(error));
+    }
+});
 export default endpoints;
