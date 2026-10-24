@@ -4,16 +4,49 @@ import { validarRecaptcha } from "../service/recaptchaService.js";
 import { generateToken, getAuthentication } from "../utils/jwt.js";
 const endpoints = Router();
 
-endpoints.post('/User', async (req, resp) => {
+endpoints.post('/usuario/pre-cadastro', async (req, resp) => {
+
     try {
         let usuario = req.body;
-        let resposta = await validarRecaptcha(usuario.token);
-        if (!resposta) {
+        let captcha = await validarRecaptcha(usuario.token);
+        if (!captcha) {
             throw new Error('Confirmação do reCAPTCHA pendente ou inválida.');
         }
 
-        let id = await db.cadastrarUsuario(usuario);
-        resp.send({ id });
+        let respo = await db.preCadastro(usuario);
+
+        resp.send({
+            mensagem: 'Código de verificação gerado com sucesso.',
+            email: respo.email
+        });
+    } catch (error) {
+        resp.status(400).send(ErrorDefault(error));
+    }
+
+})
+
+
+endpoints.post('/usuario/confirmar-cadastro', async (req, resp) => {
+    try {
+        let { email, codigo } = req.body;
+
+        if (!email || !codigo) {
+            throw new Error('E-mail e código são obrigatórios.');
+        }
+
+        let usuarioCriado = await db.CadastroUser({ email, codigo });
+
+        const token = generateToken({
+            id: usuarioCriado.id,
+            nome: usuarioCriado.nome,
+            email: usuarioCriado.email
+        });
+
+        resp.send({
+            mensagem: 'Conta confirmada e criada com sucesso!',
+            usuario: usuarioCriado,
+            token
+        });
     } catch (error) {
         resp.status(400).send(ErrorDefault(error));
     }

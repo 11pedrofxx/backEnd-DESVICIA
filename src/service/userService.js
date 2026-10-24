@@ -5,6 +5,60 @@ import * as db from '../repository/userRepository.js';
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
+export async function preCadastro(usuario) {
+    let emailLimpo = usuario.email.trim().toLowerCase();
+    let usuarioExistente = await db.buscarUsuarioPorEmail(emailLimpo);
+    if (usuarioExistente) {
+        throw new Error('Esse email já foi cadastrado.');
+    }
+    if (!usuario.senha || usuario.senha.trim().length < 6) {
+        throw new Error('A senha é obrigatória e deve ter pelo menos 6 caracteres.');
+    }
+
+    const senhaCriptografada = await bcrypt.hash(usuario.senha, 10);
+    const codigo = crypto.randomInt(100000, 1000000).toString();
+
+    let Cadastro = {
+        nome: usuario.nome,
+        email: emailLimpo,
+        senha_hash: senhaCriptografada,
+        codigo: codigo
+    }
+
+    let idPendente = await db.salvarCadastroPendente(Cadastro);
+    return {
+        id: idPendente,
+        email: emailLimpo,
+        codigo: codigo
+    };
+
+}
+
+export async function CadastroUser(dados) {
+    let emailLimpo = dados.email.trim().toLowerCase();
+    
+    let validarCadastro = await db.BuscarCadastroPendente(emailLimpo, dados.codigo);
+
+    if (!validarCadastro) {
+        throw new Error('Código de verificação inválido ou expirado.');
+    }
+
+    const UsuarioParaSalvar = {
+        nome: validarCadastro.nome,
+        email: validarCadastro.email,
+        senha_hash: validarCadastro.senha_hash
+    };
+
+    let id = await db.inserirUsuario(UsuarioParaSalvar);
+    await db.deletarCadastroPendente(validarCadastro.id);
+
+    return {
+        id,
+        nome: validarCadastro.nome,
+        email: validarCadastro.email
+    };
+}
+
 export async function cadastrarUsuario(usuario) {
     if (!usuario.senha || usuario.senha.trim().length < 6) {
         throw new Error('A senha é obrigatória e deve ter pelo menos 6 caracteres.');

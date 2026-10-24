@@ -1,5 +1,41 @@
 import connection from './connection.js';
 
+export async function salvarCadastroPendente(usuario) {
+    const command = `
+        insert into cadastros_pendentes (nome, email, senha_hash, codigo, dt_expiracao)
+        values (?, ?, ?, ?, now() + interval 15 minute)
+        on duplicate key update
+            nome = values(nome),
+            senha_hash = values(senha_hash),
+            codigo = values(codigo),
+            dt_expiracao = now() + interval 15 minute;
+    `;
+
+    const [resposta] = await connection.query(command, [
+        usuario.nome,
+        usuario.email,
+        usuario.senha_hash,
+        usuario.codigo
+    ]);
+
+    return resposta.insertId;
+}
+
+export async function BuscarCadastroPendente (email, codigo) {
+
+    const command = `
+    select id, nome, email, senha_hash
+    from cadastros_pendentes
+    where email = ?
+    and codigo = ?
+    and dt_expiracao > now();
+    `
+
+    const [resposta] = await connection.query(command, [email, codigo]);
+    return resposta[0];
+}
+
+
 export async function inserirUsuario(usuario) {
     const command = `
         insert into usuarios (nome, email, senha_hash) 
@@ -13,6 +49,12 @@ export async function inserirUsuario(usuario) {
     ]);
 
     return result.insertId;
+}
+
+export async function deletarCadastroPendente(id) {
+    const command = `delete from cadastros_pendentes where id = ?;`;
+    let [resposta] = await connection.query(command, [id]);
+    return resposta.affectedRows
 }
 
 export async function buscarUsuarioPorEmail(email) {
