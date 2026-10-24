@@ -2,6 +2,7 @@ import { Router } from "express";
 import * as db from "../service/userService.js";
 import { validarRecaptcha } from "../service/recaptchaService.js";
 import { generateToken, getAuthentication } from "../utils/jwt.js";
+import { enviarEmailCodigo } from "../service/EmailService.js";
 const endpoints = Router();
 
 endpoints.post('/usuario/pre-cadastro', async (req, resp) => {
@@ -14,12 +15,15 @@ endpoints.post('/usuario/pre-cadastro', async (req, resp) => {
         }
 
         let respo = await db.preCadastro(usuario);
+        console.log("Dados retornados para o e-mail:", respo);
+        await enviarEmailCodigo(respo.email, respo.codigo);
 
         resp.send({
             mensagem: 'Código de verificação gerado com sucesso.',
             email: respo.email
         });
     } catch (error) {
+        console.error("Erro no pré-cadastro:", error);
         resp.status(400).send(ErrorDefault(error));
     }
 
