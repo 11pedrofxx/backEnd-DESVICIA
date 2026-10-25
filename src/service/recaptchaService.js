@@ -1,8 +1,8 @@
 import axios from 'axios';
 
 export async function validarRecaptcha(token) {
-    if (token === 'Teste') {
-        return true;
+    if (!token) {
+        return false;
     }
     const chaveSecreta = process.env.ReCAPTCHA; 
 
