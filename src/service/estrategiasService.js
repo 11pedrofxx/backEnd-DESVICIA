@@ -16,7 +16,7 @@ export async function listarEstrategiasService(idUsuario) {
 
     let estrategias = await db.buscarEstrategias(idUsuario);
     return estrategias;
-}
+}''
 
 export async function deleteEstrategia(id, idUsuario) {
     let estrategia = await db.buscarEstrategiaPorId(id);
