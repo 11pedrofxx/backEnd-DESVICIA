@@ -2,6 +2,7 @@ import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 import { OAuth2Client } from 'google-auth-library';
 import * as db from '../repository/userRepository.js';
+import { enviarEmailRecuperacao } from './EmailService.js';
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -186,6 +187,51 @@ export async function ValidarCodigo(email, codigoDigitado) {
         throw new Error('Não foi possível encontrar nenhum usuário com esse email');
     }
     return true;
+}
+
+export async function solicitarRecuperacaoLinkService(email) {
+    if (!email) {
+        throw new Error('O e-mail é obrigatório.');
+    }
+
+    const usuario = await db.buscarUsuarioPorEmail(email);
+    if (!usuario) {
+        throw new Error('E-mail não encontrado no sistema.');
+    }
+
+    const token = crypto.randomBytes(32).toString('hex');
+    await db.salvarTokenRecuperacao(usuario.id, token);
+
+    const urlFrontend = process.env.URL_FRONTEND || 'http://localhost:5022';
+    const linkRecuperacao = `${urlFrontend}/redefinir-senha?token=${token}`;
+
+    await enviarEmailRecuperacao(email, linkRecuperacao);
+    return { mensagem: 'E-mail com o link de redefinição enviado com sucesso!' };
+}
+
+
+
+export async function redefinirSenhaPorTokenService(token, novaSenha) {
+    if (!token) {
+        throw new Error('Token de verificação ausente ou inválido.');
+    }
+
+    if (!novaSenha || novaSenha.length < 6) {
+        throw new Error('A nova senha deve ter no mínimo 6 caracteres.');
+    }
+
+    const usuario = await db.BuscarPorToken(token);
+    if (!usuario) {
+        throw new Error('Link de redefinição inválido ou já utilizado.');
+    }
+
+    const agora = new Date();
+    if (new Date(usuario.expiracao) < agora) {
+        throw new Error('Este link de redefinição expirou. Solicite um novo.');
+    }
+
+    await db.atualizarSenhaPorToken(usuario.id, novaSenha);
+    return { mensagem: 'Sua senha foi redefinida com sucesso!' };
 }
 
 export async function MudarSenha(email, SenhaNova) {

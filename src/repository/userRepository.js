@@ -67,6 +67,39 @@ export async function buscarUsuarioPorEmail(email) {
     return linhas[0];
 }
 
+export async function salvarTokenRecuperacao(idUsuario, token) {
+    const command = `
+        update usuarios 
+        set ds_token_recuperacao = ?,
+            dt_expiracao_token = DATE_ADD(NOW(), INTERVAL 15 MINUTE)
+        where id = ?
+    `;
+    const [resposta] = await connection.query(command, [token, idUsuario]);
+    return resposta.affectedRows;
+}
+
+export async function BuscarPorToken(token) {
+    const command = `
+    select id, nome, email, dt_expiracao_token as expiracao
+    from usuarios
+    where ds_token_recuperacao = ?
+    `
+    const [linhas] = await connection.query(command, [token]);
+    return linhas[0];
+}
+
+export async function atualizarSenhaPorToken(idUsuario, novaSenhaHash) {
+    const comando = `
+        update usuarios 
+        set senha_hash = ?,
+            ds_token_recuperacao = null,
+            dt_expiracao_token = null
+        where id = ?
+    `;
+    const [resposta] = await connection.query(comando, [novaSenhaHash, idUsuario]);
+    return resposta.affectedRows;
+}
+
 export async function buscarUsuarioPorID(id) {
     const command = `
         select * from usuarios

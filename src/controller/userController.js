@@ -98,34 +98,33 @@ endpoints.post('/login/google', async (req, resp) => {
         resp.status(400).send(ErrorDefault(error));
     }
 });
-
-endpoints.post('/esquecer-senha', async (req, resp) => {
+endpoints.post('/esqueci-senha', async (req, resp) => {
     try {
         let email = req.body.email;
-        let objeto = await db.EsquecerSenha(email);
-        resp.send(objeto);
+        let mensagem = await db.solicitarRecuperacaoLinkService(email);
+        resp.send(mensagem);
     } catch (error) {
         resp.status(400).send(ErrorDefault(error));
     }
 });
 
+endpoints.post('/redefinir-senha', async (req, resp) => {
+    try {
+        let token = req.body.token;
+        let novaSenha = req.body.novaSenha;
+        let resultado = await db.redefinirSenhaPorTokenService(token, novaSenha);
+        resp.send(resultado);
+    } catch (error) {
+        resp.status(400).send(ErrorDefault(error));
+    }
+});
+    
 endpoints.post('/validar-codigo', async (req, resp) => {
     try {
         let email = req.body.email;
         let codigoDigitado = req.body.codigoDigitado;
         let validacao = await db.ValidarCodigo(email, codigoDigitado);
         resp.send(validacao);
-    } catch (error) {
-        resp.status(400).send(ErrorDefault(error));
-    }
-});
-
-endpoints.put('/redefinir-senha', async (req, resp) => {
-    try {
-        let email = req.body.email;
-        let SenhaNova = req.body.senha;
-        let linhasAfetadas = await db.MudarSenha(email, SenhaNova);
-        resp.send({ linhasAfetadas });
     } catch (error) {
         resp.status(400).send(ErrorDefault(error));
     }
