@@ -30,8 +30,8 @@ export async function BuscarCadastroPendente (email, codigo) {
     and codigo = ?
     and dt_expiracao > now();
     `
-
-    const [resposta] = await connection.query(command, [email, codigo]);
+    const codigoFormatado = Array.isArray(codigo) ? codigo.join('') : String(codigo).trim();
+    const [resposta] = await connection.query(command, [email, codigoFormatado]);
     return resposta[0];
 }
 
