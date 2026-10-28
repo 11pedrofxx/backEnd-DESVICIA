@@ -209,8 +209,6 @@ export async function solicitarRecuperacaoLinkService(email) {
     return { mensagem: 'E-mail com o link de redefinição enviado com sucesso!' };
 }
 
-
-
 export async function redefinirSenhaPorTokenService(token, novaSenha) {
     if (!token) {
         throw new Error('Token de verificação ausente ou inválido.');
@@ -229,8 +227,9 @@ export async function redefinirSenhaPorTokenService(token, novaSenha) {
     if (new Date(usuario.expiracao) < agora) {
         throw new Error('Este link de redefinição expirou. Solicite um novo.');
     }
-
-    await db.atualizarSenhaPorToken(usuario.id, novaSenha);
+    
+    const senhaCriptografada = await bcrypt.hash(novaSenha, 10);
+    await db.atualizarSenhaPorToken(usuario.id, senhaCriptografada);
     return { mensagem: 'Sua senha foi redefinida com sucesso!' };
 }
 
