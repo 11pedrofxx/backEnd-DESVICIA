@@ -20,9 +20,6 @@ export async function enviarEmailRecuperacao(emailDestino, linkRecuperacao) {
         <div style="text-align: center; margin: 30px 0;">
             <a href="${linkRecuperacao}" target="_blank" style="background-color: #15499C; color: #ffffff; padding: 12px 24px; font-weight: bold; text-decoration: none; border-radius: 6px; display: inline-block;">Redefinir Minha Senha</a>
         </div>
-
-        <p style="font-size: 13px; color: #666;">Se o botão não funcionar, copie e cole este link no seu navegador:</p>
-        <p style="font-size: 12px; word-break: break-all; color: #15499C;">${linkRecuperacao}</p>
         <p style="font-size: 13px; color: #888; margin-top: 20px;">Este link expira em <strong>15 minutos</strong>. Se você não solicitou este envio, ignore este e-mail.</p>
     </div>
     `;

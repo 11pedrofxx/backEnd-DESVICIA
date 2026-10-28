@@ -203,7 +203,7 @@ export async function solicitarRecuperacaoLinkService(email) {
     await db.salvarTokenRecuperacao(usuario.id, token);
 
     const urlFrontend = process.env.URL_FRONTEND || 'http://localhost:5022';
-    const linkRecuperacao = `${urlFrontend}/redefinir-senha?token=${token}`;
+    const linkRecuperacao = `${urlFrontend}/nova-senha?token=${token}`;
 
     await enviarEmailRecuperacao(email, linkRecuperacao);
     return { mensagem: 'E-mail com o link de redefinição enviado com sucesso!' };
