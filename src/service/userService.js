@@ -202,7 +202,7 @@ export async function solicitarRecuperacaoLinkService(email) {
     const token = crypto.randomBytes(32).toString('hex');
     await db.salvarTokenRecuperacao(usuario.id, token);
 
-    const urlFrontend = process.env.URL_FRONTEND || 'http://localhost:5022';
+    const urlFrontend = ( process.env.URL_FRONTEND || 'http://localhost:5022').replace(/\/+$/, '');
     const linkRecuperacao = `${urlFrontend}/nova-senha?token=${token}`;
 
     await enviarEmailRecuperacao(email, linkRecuperacao);
