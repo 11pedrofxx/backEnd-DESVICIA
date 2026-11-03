@@ -3,7 +3,7 @@ import VicioController from './controller/viciosController.js';
 import UserVicio from './controller/UserViciosController.js';
 import CheckinDiario from './controller/checkinDiarioController.js';
 import gatilhos from './controller/gatilhosController.js';
-import Checkingatilho from './controller/checkingatilhoController.js';
+import Checkingatilho from './controller/checkinGatilhoController.js'
 import Estrategias from './controller/estrategiasController.js';
 import Contatos from './controller/contatosEmergController.js'
 import Conquistas from './controller/ConquistasController.js'
