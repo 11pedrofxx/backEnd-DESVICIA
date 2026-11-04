@@ -1,8 +1,13 @@
+import { analisar } from "profanity-br";
 
 export default function ValidarPost(dados) {
 
     if (!dados.usuario_id) {
         throw new Error('Usuario não encontrado')
+    }
+
+    if (!dados.titulo || dados.titulo === '') {
+        throw new Error('Você deve dar um título para sua postagem');
     }
 
     if (dados.tipo === 'CONQUISTA' && !dados.titulo_conquista) {
