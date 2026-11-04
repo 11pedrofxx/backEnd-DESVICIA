@@ -170,3 +170,25 @@ export async function concluirApresentacao(idUsuario) {
     const [result] = await connection.query(command, [idUsuario]);
     return result.affectedRows;
 }
+
+export async function SalvarPrimeiroAcesso(idUsuario, nomeExibicao, vicioPrincipal, distracoes) {
+const command = `
+        update usuarios 
+        set nome_exibicao = ?, 
+            vicio_principal = ?, 
+            distracoes = ?, 
+            primeiro_acesso = false 
+        where id = ?
+    `;
+
+    const objeto = JSON.stringify(distracoes);
+
+    const [resposta] = await connection.query(command, [
+        nomeExibicao, 
+        vicioPrincipal, 
+        objeto, 
+        idUsuario
+    ]);
+
+    return resposta.affectedRows;
+}
