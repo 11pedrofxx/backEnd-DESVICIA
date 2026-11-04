@@ -5,6 +5,11 @@ import { generateToken, getAuthentication } from "../utils/jwt.js";
 import { enviarEmailCodigo } from "../service/EmailService.js";
 const endpoints = Router();
 
+// Antes, ErrorDefault era chamado em todos os catch, mas não existia neste arquivo.
+function ErrorDefault(error) {
+    return { erro: error?.message || "Ocorreu um erro inesperado." };
+}
+
 endpoints.post('/usuario/pre-cadastro', async (req, resp) => {
 
     try {
@@ -15,7 +20,7 @@ endpoints.post('/usuario/pre-cadastro', async (req, resp) => {
         }
 
         let respo = await db.preCadastro(usuario);
-        console.log("Dados retornados para o e-mail:", respo);
+        // Não registre o código de verificação nos logs.
         await enviarEmailCodigo(respo.email, respo.codigo);
 
         resp.send({

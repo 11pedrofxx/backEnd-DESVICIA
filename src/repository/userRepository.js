@@ -1,5 +1,12 @@
 import connection from './connection.js';
 
+function normalizarEmail(email) {
+    if (typeof email !== 'string' || !email.trim()) {
+        throw new Error('E-mail inválido.');
+    }
+    return email.trim().toLowerCase();
+}
+
 export async function salvarCadastroPendente(usuario) {
     const command = `
         insert into cadastros_pendentes (nome, email, senha_hash, codigo, dt_expiracao)
@@ -13,7 +20,7 @@ export async function salvarCadastroPendente(usuario) {
 
     const [resposta] = await connection.query(command, [
         usuario.nome,
-        usuario.email,
+        normalizarEmail(usuario.email),
         usuario.senha_hash,
         usuario.codigo
     ]);
@@ -31,7 +38,7 @@ export async function BuscarCadastroPendente (email, codigo) {
     and dt_expiracao > now();
     `
     const codigoFormatado = Array.isArray(codigo) ? codigo.join('') : String(codigo).trim();
-    const [resposta] = await connection.query(command, [email, codigoFormatado]);
+    const [resposta] = await connection.query(command, [normalizarEmail(email), codigoFormatado]);
     return resposta[0];
 }
 
@@ -44,7 +51,7 @@ export async function inserirUsuario(usuario) {
     
     const [result] = await connection.query(command, [
         usuario.nome,
-        usuario.email,
+        normalizarEmail(usuario.email),
         usuario.senha_hash
     ]);
 
@@ -63,7 +70,7 @@ export async function buscarUsuarioPorEmail(email) {
         where lower(trim(email)) = ?
     `;
 
-    const [linhas] = await connection.query(command, [email]);
+    const [linhas] = await connection.query(command, [normalizarEmail(email)]);
     return linhas[0];
 }
 
