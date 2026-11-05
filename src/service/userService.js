@@ -266,7 +266,7 @@ export async function marcarApresentacaoComoConcluida(idUsuario) {
 }
 
 export async function CompletarPrimeiroAcessoService(idUsuario, dados) {
-    const { nome_exibicao, vicio_principal, distracoes } = dados;
+    const { nome_exibicao, vicio_principal, distracoes, foto_perfil } = dados;
 
     if (!nome_exibicao || !nome_exibicao.trim()) {
         throw new Error('O nome de exibição é obrigatório.');
@@ -280,10 +280,15 @@ export async function CompletarPrimeiroAcessoService(idUsuario, dados) {
         throw new Error('Selecione pelo menos uma opção de distração.');
     }
 
+    if (!foto_perfil || !foto_perfil.trim()) {
+        throw new Error('A foto de perfil é obrigatória.');
+    }
+
     await db.SalvarPrimeiroAcesso(
         idUsuario, 
         nome_exibicao.trim(), 
         vicio_principal.trim(), 
-        distracoes
+        distracoes,
+        foto_perfil.trim()
     );
 }

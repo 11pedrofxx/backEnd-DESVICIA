@@ -168,8 +168,9 @@ endpoints.post('/apresentacao/concluir', getAuthentication(), async (req, resp) 
 endpoints.put('/usuario/primeiro-acesso', getAuthentication(), async (req, resp) => {
     try {
         let usuario_id = req.user.id || req.user;
+        let dados = req.body.dados;
         
-        await db.CompletarPrimeiroAcessoService(usuario_id, req.body);
+        await db.CompletarPrimeiroAcessoService(usuario_id, dados);
 
         resp.status(200).send({
             mensagem: 'Perfil inicial configurado com sucesso!'

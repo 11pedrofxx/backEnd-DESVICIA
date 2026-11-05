@@ -171,12 +171,13 @@ export async function concluirApresentacao(idUsuario) {
     return result.affectedRows;
 }
 
-export async function SalvarPrimeiroAcesso(idUsuario, nomeExibicao, vicioPrincipal, distracoes) {
-const command = `
+export async function SalvarPrimeiroAcesso(idUsuario, nomeExibicao, vicioPrincipal, distracoes, fotoPerfil) {
+    const command = `
         update usuarios 
         set nome_exibicao = ?, 
             vicio_principal = ?, 
             distracoes = ?, 
+            foto_perfil = ?,
             primeiro_acesso = false 
         where id = ?
     `;
@@ -187,6 +188,7 @@ const command = `
         nomeExibicao, 
         vicioPrincipal, 
         objeto, 
+        fotoPerfil,
         idUsuario
     ]);
 
