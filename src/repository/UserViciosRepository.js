@@ -7,9 +7,9 @@ function validarParametros(idUsuario, vicioId, dataInicio) {
     if (!Number.isSafeInteger(Number(vicioId)) || Number(vicioId) <= 0) {
         throw new Error("ID do hábito inválido.");
     }
-    if (typeof dataInicio !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(dataInicio)) {
-        throw new Error("Data de início inválida. Use YYYY-MM-DD.");
-    }
+    if (!dataInicio) {
+    throw new Error("Informe a data de início.");
+}
 }
 
 export async function vincularVicio(idUsuario, vicioId, dataInicio) {
