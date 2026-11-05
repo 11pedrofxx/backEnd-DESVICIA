@@ -66,7 +66,7 @@ export async function BuscarPostagensPorCategoria(categoria) {
     left join postagens_apoios on postagens_apoios.postagem_id = postagens.id
     left join postagens_comentarios on postagens_comentarios.postagem_id = postagens.id
     where postagens.categoria = ?
-    group by postagens.id, usuarios.id
+    group by postagens.id, usuarios.id_
     order by postagens.criado_em desc;
     `;
 

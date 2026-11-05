@@ -168,7 +168,7 @@ endpoints.post('/apresentacao/concluir', getAuthentication(), async (req, resp) 
 endpoints.put('/usuario/primeiro-acesso', getAuthentication(), async (req, resp) => {
     try {
         let usuario_id = req.user.id || req.user;
-        let dados = req.body.dados;
+        let dados = req.body;
         
         await db.CompletarPrimeiroAcessoService(usuario_id, dados);
 
