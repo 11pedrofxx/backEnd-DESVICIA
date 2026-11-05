@@ -264,3 +264,26 @@ export async function marcarApresentacaoComoConcluida(idUsuario) {
     }
     await db.concluirApresentacao(idUsuario);
 }
+
+export async function CompletarPrimeiroAcessoService(idUsuario, dados) {
+    const { nome_exibicao, vicio_principal, distracoes } = dados;
+
+    if (!nome_exibicao || !nome_exibicao.trim()) {
+        throw new Error('O nome de exibição é obrigatório.');
+    }
+
+    if (!vicio_principal || !vicio_principal.trim()) {
+        throw new Error('O vício principal deve ser selecionado.');
+    }
+
+    if (!distracoes || !Array.isArray(distracoes) || distracoes.length === 0) {
+        throw new Error('Selecione pelo menos uma opção de distração.');
+    }
+
+    await db.SalvarPrimeiroAcesso(
+        idUsuario, 
+        nome_exibicao.trim(), 
+        vicio_principal.trim(), 
+        distracoes
+    );
+}

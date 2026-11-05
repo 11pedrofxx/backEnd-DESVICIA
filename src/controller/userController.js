@@ -3,9 +3,9 @@ import * as db from "../service/userService.js";
 import { validarRecaptcha } from "../service/recaptchaService.js";
 import { generateToken, getAuthentication } from "../utils/jwt.js";
 import { enviarEmailCodigo } from "../service/EmailService.js";
+
 const endpoints = Router();
 
-// Antes, ErrorDefault era chamado em todos os catch, mas não existia neste arquivo.
 function ErrorDefault(error) {
     return { erro: error?.message || "Ocorreu um erro inesperado." };
 }
@@ -20,7 +20,6 @@ endpoints.post('/usuario/pre-cadastro', async (req, resp) => {
         }
 
         let respo = await db.preCadastro(usuario);
-        // Não registre o código de verificação nos logs.
         await enviarEmailCodigo(respo.email, respo.codigo);
 
         resp.send({
@@ -165,4 +164,19 @@ endpoints.post('/apresentacao/concluir', getAuthentication(), async (req, resp) 
         resp.status(400).send(ErrorDefault(error));
     }
 });
+
+endpoints.put('/usuario/primeiro-acesso', getAuthentication(), async (req, resp) => {
+    try {
+        let usuario_id = req.user.id || req.user;
+        
+        await db.CompletarPrimeiroAcessoService(usuario_id, req.body);
+
+        resp.status(200).send({
+            mensagem: 'Perfil inicial configurado com sucesso!'
+        });
+    } catch (error) {
+        resp.status(400).send({ erro: error.message });
+    }
+});
+
 export default endpoints;
