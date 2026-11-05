@@ -284,11 +284,16 @@ export async function CompletarPrimeiroAcessoService(idUsuario, dados) {
         throw new Error('A foto de perfil é obrigatória.');
     }
 
+    if (!dados.cidade || !dados.cidade.trim()) {
+        throw new Error('A cidade é obrigatória.');
+    }
+
     await db.SalvarPrimeiroAcesso(
         idUsuario, 
         dados.nome_exibicao.trim(), 
         dados.vicio_principal.trim(), 
         dados.distracoes,
-        dados.foto_perfil.trim()
+        dados.foto_perfil.trim(),
+        dados.cidade.trim()
     );
 }
