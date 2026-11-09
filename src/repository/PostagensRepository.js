@@ -59,7 +59,7 @@ export async function BuscarPostagensPorCategoria(categoria) {
         postagens.subtitulo_conquista,
         postagens.criado_em,
         usuarios.id as autor_id,
-        usuarios.nome as autor_nome,
+        usuarios.nome_exibicao as autor_nome,
         usuarios.foto_perfil as autor_foto,
         count(distinct postagens_apoios.id) as total_apoios,
         count(distinct postagens_comentarios.id) as total_comentarios
@@ -68,7 +68,7 @@ export async function BuscarPostagensPorCategoria(categoria) {
     left join postagens_apoios on postagens_apoios.postagem_id = postagens.id
     left join postagens_comentarios on postagens_comentarios.postagem_id = postagens.id
     where LOWER(usuarios.vicio_principal) = LOWER(?)
-    group by postagens.id, usuarios.id, usuarios.nome, usuarios.foto_perfil, usuarios.vicio_principal
+    group by postagens.id, usuarios.id, usuarios.nome_exibicao, usuarios.foto_perfil, usuarios.vicio_principal
     order by postagens.criado_em desc;
     `;
 
