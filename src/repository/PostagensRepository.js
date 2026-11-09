@@ -22,10 +22,10 @@ export async function FazerPostagem(info) {
 
 export async function BuscarPostagens() {
 
-    const commnand = `
+    const command = `
     select 
         postagens.id,
-        postagens.categoria,
+        usuarios.vicio_principal as categoria,
         postagens.tipo,
         postagens.conteudo,
         postagens.titulo_conquista,
@@ -33,25 +33,26 @@ export async function BuscarPostagens() {
         postagens.criado_em,
         usuarios.id as autor_id,
         usuarios.nome as autor_nome,
+        usuarios.foto_perfil as autor_foto,
         count(distinct postagens_apoios.id) as total_apoios,
         count(distinct postagens_comentarios.id) as total_comentarios
     from postagens
     inner join usuarios on usuarios.id = postagens.usuario_id
     left join postagens_apoios on postagens_apoios.postagem_id = postagens.id
     left join postagens_comentarios on postagens_comentarios.postagem_id = postagens.id
-    group by postagens.id, usuarios.id
+    group by postagens.id, usuarios.id, usuarios.nome, usuarios.foto_perfil, usuarios.vicio_principal
     order by postagens.criado_em desc;
-    `
+    `;
     
-    let [resposta] = await connection.query(commnand);
+    let [resposta] = await connection.query(command);
     return resposta;
 }
 
 export async function BuscarPostagensPorCategoria(categoria) {
     let command = `
-      select 
+    select 
         postagens.id,
-        postagens.categoria,
+        usuarios.vicio_principal as categoria,
         postagens.tipo,
         postagens.conteudo,
         postagens.titulo_conquista,
@@ -59,14 +60,15 @@ export async function BuscarPostagensPorCategoria(categoria) {
         postagens.criado_em,
         usuarios.id as autor_id,
         usuarios.nome as autor_nome,
+        usuarios.foto_perfil as autor_foto,
         count(distinct postagens_apoios.id) as total_apoios,
         count(distinct postagens_comentarios.id) as total_comentarios
     from postagens
     inner join usuarios on usuarios.id = postagens.usuario_id
     left join postagens_apoios on postagens_apoios.postagem_id = postagens.id
     left join postagens_comentarios on postagens_comentarios.postagem_id = postagens.id
-    where postagens.categoria = ?
-    group by postagens.id, usuarios.id_
+    where LOWER(usuarios.vicio_principal) = LOWER(?)
+    group by postagens.id, usuarios.id, usuarios.nome, usuarios.foto_perfil, usuarios.vicio_principal
     order by postagens.criado_em desc;
     `;
 

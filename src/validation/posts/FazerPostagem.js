@@ -6,10 +6,6 @@ export default function ValidarPost(dados) {
         throw new Error('Usuario não encontrado')
     }
 
-    if (!dados.titulo || dados.titulo === '') {
-        throw new Error('Você deve dar um título para sua postagem');
-    }
-
     if (dados.tipo === 'CONQUISTA' && !dados.titulo_conquista) {
     throw new Error('Para compartilhar uma conquista você deve escrever um título');
     }
