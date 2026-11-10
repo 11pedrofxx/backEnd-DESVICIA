@@ -89,5 +89,20 @@ endpoints.post('/FazerComentario/:id', async (req, resp) => {
     }
 })
 
+endpoints.get('/BuscarComentarios/:id', async (req, resp) => {
+
+    try {
+        
+        let postagem_id = req.params.id;
+        let usuario_id = req.user.id || req.user;
+        let comentarios = await db.BuscarComentariosService(postagem_id)
+        resp.send(comentarios);
+
+    } catch (error) {
+        resp.status(400).send(ErrorDefault(error));
+    }
+
+})
+
 
 export default endpoints

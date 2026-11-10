@@ -100,7 +100,7 @@ export async function DarLike(postagem_id, usuario_id) {
 export async function RemoverLike(postagem_id, usuario_id) {
 
     const command = `
-    delete from postagens_apoio
+    delete from postagens_apoios
     where postagem_id = ?
     and usuario_id = ?;
     `
@@ -120,4 +120,23 @@ export async function CriarComentario(postagem_id, usuario_id, conteudo) {
     let [resposta] = await connection.query(command, [postagem_id, usuario_id, conteudo])
     return resposta.insertId;
 
+}
+
+export async function ListarComentariosPorPostagem(postagem_id) {
+    const command = `
+    select 
+        postagens_comentarios.id,
+        postagens_comentarios.conteudo,
+        postagens_comentarios.criado_em,
+        usuarios.id as autor_id,
+        usuarios.nome_exibicao as autor_nome,
+        usuarios.foto_perfil as autor_foto
+    from postagens_comentarios
+    inner join usuarios on usuarios.id = postagens_comentarios.usuario_id
+    where postagens_comentarios.postagem_id = ?
+    order by postagens_comentarios.criado_em asc;
+    `;
+
+    let [resposta] = await connection.query(command, [postagem_id]);
+    return resposta;
 }

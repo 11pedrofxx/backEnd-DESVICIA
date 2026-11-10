@@ -49,3 +49,10 @@ export async function PostComentarioService(postagem_id, usuario_id, conteudo) {
     return id;
 
 }
+
+export async function BuscarComentariosService(postagem_id) {
+ 
+    let comentarios = await db.ListarComentariosPorPostagem(postagem_id);
+    return comentarios;
+    
+}
