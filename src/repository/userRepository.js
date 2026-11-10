@@ -171,7 +171,6 @@ export async function concluirApresentacao(idUsuario) {
     return result.affectedRows;
 }
 
-
 export async function SalvarPrimeiroAcesso(idUsuario, nomeExibicao, vicioPrincipal, distracoes, fotoPerfil, cidade) {
     const command = `
         update usuarios 
