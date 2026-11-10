@@ -20,8 +20,8 @@ export async function FazerPostagem(info) {
 
 }
 
-export async function BuscarPostagens() {
-
+export async function BuscarPostagens(usuario_id) {
+    console.log({usuario_id});
     const command = `
     select 
         postagens.id,
@@ -32,23 +32,28 @@ export async function BuscarPostagens() {
         postagens.subtitulo_conquista,
         postagens.criado_em,
         usuarios.id as autor_id,
-        usuarios.nome_exibicao as autor_nome,
+        usuarios.nome as autor_nome,
         usuarios.foto_perfil as autor_foto,
         count(distinct postagens_apoios.id) as total_apoios,
-        count(distinct postagens_comentarios.id) as total_comentarios
+        count(distinct postagens_comentarios.id) as total_comentarios,
+        EXISTS (
+            select 1 from postagens_apoios 
+            where postagens_apoios.postagem_id = postagens.id 
+            and postagens_apoios.usuario_id = ?
+        ) as jaCurtiu
     from postagens
     inner join usuarios on usuarios.id = postagens.usuario_id
     left join postagens_apoios on postagens_apoios.postagem_id = postagens.id
     left join postagens_comentarios on postagens_comentarios.postagem_id = postagens.id
-    group by postagens.id, usuarios.id, usuarios.nome_exibicao, usuarios.foto_perfil, usuarios.vicio_principal
+    group by postagens.id, usuarios.id, usuarios.nome, usuarios.foto_perfil, usuarios.vicio_principal
     order by postagens.criado_em desc;
     `;
     
-    let [resposta] = await connection.query(command);
+    let [resposta] = await connection.query(command, [usuario_id]);
     return resposta;
 }
 
-export async function BuscarPostagensPorCategoria(categoria) {
+export async function BuscarPostagensPorCategoria(categoria, usuario_id) {
     let command = `
     select 
         postagens.id,
@@ -59,20 +64,25 @@ export async function BuscarPostagensPorCategoria(categoria) {
         postagens.subtitulo_conquista,
         postagens.criado_em,
         usuarios.id as autor_id,
-        usuarios.nome_exibicao as autor_nome,
+        usuarios.nome as autor_nome,
         usuarios.foto_perfil as autor_foto,
         count(distinct postagens_apoios.id) as total_apoios,
-        count(distinct postagens_comentarios.id) as total_comentarios
+        count(distinct postagens_comentarios.id) as total_comentarios,
+        EXISTS (
+            select 1 from postagens_apoios 
+            where postagens_apoios.postagem_id = postagens.id 
+            and postagens_apoios.usuario_id = ?
+        ) as jaCurtiu
     from postagens
     inner join usuarios on usuarios.id = postagens.usuario_id
     left join postagens_apoios on postagens_apoios.postagem_id = postagens.id
     left join postagens_comentarios on postagens_comentarios.postagem_id = postagens.id
     where LOWER(usuarios.vicio_principal) = LOWER(?)
-    group by postagens.id, usuarios.id, usuarios.nome_exibicao, usuarios.foto_perfil, usuarios.vicio_principal
+    group by postagens.id, usuarios.id, usuarios.nome, usuarios.foto_perfil, usuarios.vicio_principal
     order by postagens.criado_em desc;
     `;
 
-    let [resposta] = await connection.query(command, [categoria]);
+    let [resposta] = await connection.query(command, [usuario_id, categoria]);
     return resposta;
 }
 

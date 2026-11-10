@@ -21,8 +21,10 @@ endpoints.post('/Postar', async (req, resp) => {
 });
 
 endpoints.get('/postagens', async (req, resp) => {
+    
     try {
-        let dados = await db.BuscarPostagensService();
+        let usuario_id = req.user.id || req.user;
+        let dados = await db.BuscarPostagensService(usuario_id);
         resp.send(dados);
     } catch (error) {
         resp.status(400).send({ erro: error.message });
@@ -32,9 +34,9 @@ endpoints.get('/postagens', async (req, resp) => {
 endpoints.get('/postagens/categoria/:categoria', async (req, resp) => {
     
     try {
-        
-        let { categoria } = req.params;
-        let dados = await db.BuscaPorCategoria(categoria);
+        let categoria = decodeURIComponent(req.params.categoria);
+        let usuario_id = req.user.id || req.user;
+        let dados = await db.BuscaPorCategoria(categoria, usuario_id);
         resp.send(dados);
 
     } catch (error) {

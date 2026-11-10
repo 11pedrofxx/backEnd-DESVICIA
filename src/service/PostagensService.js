@@ -10,16 +10,16 @@ export async function FazerPostService(dados) {
 
 }
 
-export async function BuscarPostagensService() {
+export async function BuscarPostagensService(usuario_id) {
 
-    let registros = await db.BuscarPostagens();
+    let registros = await db.BuscarPostagens(usuario_id);
     return registros;
 
 }
 
-export async function BuscaPorCategoria (categoria) {
-
-    let registros = await db.BuscarPostagensPorCategoria(categoria);
+export async function BuscaPorCategoria (categoria, usuario_id) {
+    
+    let registros = await db.BuscarPostagensPorCategoria(categoria, usuario_id);
     return registros;
 
 }
