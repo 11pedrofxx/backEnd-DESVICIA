@@ -97,6 +97,19 @@ export async function DarLike(postagem_id, usuario_id) {
 
 }
 
+export async function RemoverLike(postagem_id, usuario_id) {
+
+    const command = `
+    delete from postagens_apoio
+    where postagem_id = ?
+    and usuario_id = ?;
+    `
+
+    let [resposta] = await connection.query(command, [postagem_id, usuario_id]);
+    return resposta.affectedRows;
+    
+}
+
 export async function CriarComentario(postagem_id, usuario_id, conteudo) {
 
     const command = `
@@ -108,4 +121,3 @@ export async function CriarComentario(postagem_id, usuario_id, conteudo) {
     return resposta.insertId;
 
 }
-

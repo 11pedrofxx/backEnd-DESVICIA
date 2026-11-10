@@ -60,6 +60,21 @@ endpoints.post('/apoiar/:id', async (req, resp) => {
     }
 });
 
+endpoints.post('/Remover-Like/:id', async (req, resp) => {
+    try {
+        let postagem_id = req.params.id;
+        let usuario_id = req.user.id || req.user;
+
+        await db.RemoverLikeService(postagem_id, usuario_id);
+
+        resp.send({
+            message: 'Apoio removido com sucesso'
+        })
+    } catch (error) {
+        resp.status(400).send(ErrorDefault(error));
+    }
+})
+
 endpoints.post('/FazerComentario/:id', async (req, resp) => {
     try {
         let postagem_id = req.params.id

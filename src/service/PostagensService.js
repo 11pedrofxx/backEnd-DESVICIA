@@ -36,6 +36,12 @@ export async function ApoiarPostagemService(postagem_id, usuario_id) {
     }
 }
 
+export async function RemoverLikeService(postagem_id, usuario_id) {
+
+    let linhasAfetadas = await db.RemoverLike(postagem_id, usuario_id);
+    return linhasAfetadas;
+}
+
 export async function PostComentarioService(postagem_id, usuario_id, conteudo) {
 
     ValidarComentario(conteudo);
