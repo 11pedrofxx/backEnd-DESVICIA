@@ -1,12 +1,12 @@
 import connection from "./connection.js";
 
 export async function postGatilho(idUsuario, gatilho) {
-    const command = `
-        insert into gatilhos (nome, personalizado, usuario_id)
-        values (?, ?, ?)
+    const comando = `
+        insert into gatilhos (nome, personalizado, usuario_id, registros_iniciais)
+        values (?, ?, ?, 1)
     `;
 
-    let resposta = await connection.query(command, [
+    let resposta = await connection.query(comando, [
         gatilho.nome,
         true,
         idUsuario
@@ -52,14 +52,18 @@ export async function buscarDashboardGatilhos(idUsuario) {
         select 
             gatilhos.id,
             gatilhos.nome,
-            count(checkin_gatilhos.gatilho_id) as total_registros
+            (count(checkin_gatilhos.gatilho_id) + gatilhos.registros_iniciais) as total_registros
         from gatilhos
         left join checkin_gatilhos on gatilhos.id = checkin_gatilhos.gatilho_id
         where gatilhos.personalizado = false or gatilhos.usuario_id = ?
-        group by gatilhos.id, gatilhos.nome
+        group by gatilhos.id, gatilhos.nome, gatilhos.registros_iniciais
         order by total_registros desc;
     `;
 
     let [resposta] = await connection.query(command, [idUsuario]);
     return resposta;
+}
+
+export async function addRegistro(idGatilho) {
+    
 }
