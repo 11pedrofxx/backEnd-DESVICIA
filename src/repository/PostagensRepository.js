@@ -20,8 +20,7 @@ export async function FazerPostagem(info) {
 
 }
 
-export async function BuscarPostagens() {
-
+export async function BuscarPostagens(usuario_id) {
     const command = `
     select 
         postagens.id,
@@ -35,7 +34,12 @@ export async function BuscarPostagens() {
         usuarios.nome_exibicao as autor_nome,
         usuarios.foto_perfil as autor_foto,
         count(distinct postagens_apoios.id) as total_apoios,
-        count(distinct postagens_comentarios.id) as total_comentarios
+        count(distinct postagens_comentarios.id) as total_comentarios,
+        EXISTS (
+            select 1 from postagens_apoios 
+            where postagens_apoios.postagem_id = postagens.id 
+            and postagens_apoios.usuario_id = ?
+        ) as jaCurtiu
     from postagens
     inner join usuarios on usuarios.id = postagens.usuario_id
     left join postagens_apoios on postagens_apoios.postagem_id = postagens.id
@@ -44,11 +48,11 @@ export async function BuscarPostagens() {
     order by postagens.criado_em desc;
     `;
     
-    let [resposta] = await connection.query(command);
+    let [resposta] = await connection.query(command, [usuario_id]);
     return resposta;
 }
 
-export async function BuscarPostagensPorCategoria(categoria) {
+export async function BuscarPostagensPorCategoria(categoria, usuario_id) {
     let command = `
     select 
         postagens.id,
@@ -62,7 +66,12 @@ export async function BuscarPostagensPorCategoria(categoria) {
         usuarios.nome_exibicao as autor_nome,
         usuarios.foto_perfil as autor_foto,
         count(distinct postagens_apoios.id) as total_apoios,
-        count(distinct postagens_comentarios.id) as total_comentarios
+        count(distinct postagens_comentarios.id) as total_comentarios,
+        EXISTS (
+            select 1 from postagens_apoios 
+            where postagens_apoios.postagem_id = postagens.id 
+            and postagens_apoios.usuario_id = ?
+        ) as jaCurtiu
     from postagens
     inner join usuarios on usuarios.id = postagens.usuario_id
     left join postagens_apoios on postagens_apoios.postagem_id = postagens.id
@@ -72,7 +81,7 @@ export async function BuscarPostagensPorCategoria(categoria) {
     order by postagens.criado_em desc;
     `;
 
-    let [resposta] = await connection.query(command, [categoria]);
+    let [resposta] = await connection.query(command, [usuario_id, categoria]);
     return resposta;
 }
 
@@ -88,6 +97,19 @@ export async function DarLike(postagem_id, usuario_id) {
 
 }
 
+export async function RemoverLike(postagem_id, usuario_id) {
+
+    const command = `
+    delete from postagens_apoios
+    where postagem_id = ?
+    and usuario_id = ?;
+    `
+
+    let [resposta] = await connection.query(command, [postagem_id, usuario_id]);
+    return resposta.affectedRows;
+    
+}
+
 export async function CriarComentario(postagem_id, usuario_id, conteudo) {
 
     const command = `
@@ -100,3 +122,21 @@ export async function CriarComentario(postagem_id, usuario_id, conteudo) {
 
 }
 
+export async function ListarComentariosPorPostagem(postagem_id) {
+    const command = `
+    select 
+        postagens_comentarios.id,
+        postagens_comentarios.conteudo,
+        postagens_comentarios.criado_em,
+        usuarios.id as autor_id,
+        usuarios.nome_exibicao as autor_nome,
+        usuarios.foto_perfil as autor_foto
+    from postagens_comentarios
+    inner join usuarios on usuarios.id = postagens_comentarios.usuario_id
+    where postagens_comentarios.postagem_id = ?
+    order by postagens_comentarios.criado_em asc;
+    `;
+
+    let [resposta] = await connection.query(command, [postagem_id]);
+    return resposta;
+}

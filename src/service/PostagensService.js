@@ -10,16 +10,16 @@ export async function FazerPostService(dados) {
 
 }
 
-export async function BuscarPostagensService() {
+export async function BuscarPostagensService(usuario_id) {
 
-    let registros = await db.BuscarPostagens();
+    let registros = await db.BuscarPostagens(usuario_id);
     return registros;
 
 }
 
-export async function BuscaPorCategoria (categoria) {
-
-    let registros = await db.BuscarPostagensPorCategoria(categoria);
+export async function BuscaPorCategoria (categoria, usuario_id) {
+    
+    let registros = await db.BuscarPostagensPorCategoria(categoria, usuario_id);
     return registros;
 
 }
@@ -36,10 +36,23 @@ export async function ApoiarPostagemService(postagem_id, usuario_id) {
     }
 }
 
+export async function RemoverLikeService(postagem_id, usuario_id) {
+
+    let linhasAfetadas = await db.RemoverLike(postagem_id, usuario_id);
+    return linhasAfetadas;
+}
+
 export async function PostComentarioService(postagem_id, usuario_id, conteudo) {
 
     ValidarComentario(conteudo);
     let id = await db.CriarComentario(postagem_id, usuario_id, conteudo.trim());
     return id;
 
+}
+
+export async function BuscarComentariosService(postagem_id) {
+ 
+    let comentarios = await db.ListarComentariosPorPostagem(postagem_id);
+    return comentarios;
+    
 }

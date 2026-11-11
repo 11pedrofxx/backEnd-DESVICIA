@@ -21,8 +21,10 @@ endpoints.post('/Postar', async (req, resp) => {
 });
 
 endpoints.get('/postagens', async (req, resp) => {
+    
     try {
-        let dados = await db.BuscarPostagensService();
+        let usuario_id = req.user.id || req.user;
+        let dados = await db.BuscarPostagensService(usuario_id);
         resp.send(dados);
     } catch (error) {
         resp.status(400).send({ erro: error.message });
@@ -32,9 +34,9 @@ endpoints.get('/postagens', async (req, resp) => {
 endpoints.get('/postagens/categoria/:categoria', async (req, resp) => {
     
     try {
-        
-        let { categoria } = req.params;
-        let dados = await db.BuscaPorCategoria(categoria);
+        let categoria = decodeURIComponent(req.params.categoria);
+        let usuario_id = req.user.id || req.user;
+        let dados = await db.BuscaPorCategoria(categoria, usuario_id);
         resp.send(dados);
 
     } catch (error) {
@@ -58,6 +60,21 @@ endpoints.post('/apoiar/:id', async (req, resp) => {
     }
 });
 
+endpoints.post('/Remover-Like/:id', async (req, resp) => {
+    try {
+        let postagem_id = req.params.id;
+        let usuario_id = req.user.id || req.user;
+
+        await db.RemoverLikeService(postagem_id, usuario_id);
+
+        resp.send({
+            message: 'Apoio removido com sucesso'
+        })
+    } catch (error) {
+        resp.status(400).send(ErrorDefault(error));
+    }
+})
+
 endpoints.post('/FazerComentario/:id', async (req, resp) => {
     try {
         let postagem_id = req.params.id
@@ -70,6 +87,21 @@ endpoints.post('/FazerComentario/:id', async (req, resp) => {
     } catch (error) {
         resp.status(400).send({ erro: error.message });
     }
+})
+
+endpoints.get('/BuscarComentarios/:id', async (req, resp) => {
+
+    try {
+        
+        let postagem_id = req.params.id;
+        let usuario_id = req.user.id || req.user;
+        let comentarios = await db.BuscarComentariosService(postagem_id)
+        resp.send(comentarios);
+
+    } catch (error) {
+        resp.status(400).send(ErrorDefault(error));
+    }
+
 })
 
 
