@@ -40,4 +40,14 @@ endpoints.delete('/gatilhos/:id', async (req, resp) => {
     }
 });
 
+endpoints.get('/gatilhos/dashboard', async (req, resp) => {
+    try {
+        let usuarioId = req.user.id || req.user;
+        let dashboard = await db.DashGatilhos(usuarioId);
+        resp.send(dashboard);
+    } catch (error) {
+        resp.status(400).send(ErrorDefault(error));
+    }
+});
+
 export default endpoints;

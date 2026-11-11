@@ -25,3 +25,10 @@ export async function DeleteService(id, idUsuario) {
     }
     return linhasAfetadas;
 }
+
+export async function DashGatilhos(idUsuario) {
+
+    let gatilhos = await db.buscarDashboardGatilhos(idUsuario);
+    return gatilhos
+
+}

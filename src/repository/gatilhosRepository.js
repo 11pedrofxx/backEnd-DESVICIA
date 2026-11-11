@@ -46,3 +46,20 @@ export async function deletarGatilho(id, idUsuario) {
     let linhasAfetadas = info.affectedRows;
     return linhasAfetadas;
 }
+
+export async function buscarDashboardGatilhos(idUsuario) {
+    const command = `
+        select 
+            gatilhos.id,
+            gatilhos.nome,
+            count(checkin_gatilhos.gatilho_id) as total_registros
+        from gatilhos
+        left join checkin_gatilhos on gatilhos.id = checkin_gatilhos.gatilho_id
+        where gatilhos.personalizado = false or gatilhos.usuario_id = ?
+        group by gatilhos.id, gatilhos.nome
+        order by total_registros desc;
+    `;
+
+    let [resposta] = await connection.query(command, [idUsuario]);
+    return resposta;
+}
