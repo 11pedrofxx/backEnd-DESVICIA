@@ -4,7 +4,6 @@ import { getAuthentication } from "../utils/jwt.js";
 
 const endpoints = Router();
 
-// FUNÇÃO QUE HAVIA SIDO APAGADA:
 function ErrorDefault(error) {
     return { erro: error?.message || "Ocorreu um erro inesperado." };
 }
