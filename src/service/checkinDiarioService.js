@@ -52,7 +52,7 @@ export async function getCheckins(idUsuario) {
 
     let registro = await db.buscarCheckIns(idUsuario);
     if (registro.length === 0) {
-        throw new Error(`Nenhum check-in encontrado para este usuário.`);
+       return []
     }
     return registro;
 }
