@@ -20,15 +20,18 @@ endpoints.post('/checkin', async (req, resp) => {
     }
 });
 
-endpoints.get('/buscarCheckins', async (req, resp) => {
-    try {
-        let idUsuario = req.user.id;
-        let registro = await db.getCheckins(idUsuario);
-        resp.send(registro);
-    } catch (error) {
-        resp.status(400).send(ErrorDefault(error));
+export async function getCheckins(idUsuario) { 
+    if (!idUsuario || isNaN(idUsuario)) {
+        throw new Error(`O ID que você digitou está errado ou não existe`);
     }
-});
+
+    let registro = await db.buscarCheckIns(idUsuario);
+    if (!registro || registro.length === 0) {
+        return []; 
+    }
+    
+    return registro;
+}
 
 endpoints.put('/checkin/:id', async (req, resp) => {
     try {
