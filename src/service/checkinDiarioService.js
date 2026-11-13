@@ -1,7 +1,7 @@
-import * as db from '../repository/checkinDiarioRepository.js';
-import checkinValidation from '../validation/checkinValidation.js';
-import { SalvarCheckinGatilhoService } from './CheckinGatilhoService.js';
-import { adicionarConquistaService } from './ConquistasService.js';
+import * as db from "../repository/checkinDiarioRepository.js";
+import checkinValidation from "../validation/checkinValidation.js";
+import { SalvarCheckinGatilhoService } from "./CheckinGatilhoService.js";
+import { adicionarConquistaService } from "./ConquistasService.js";
 
 export async function CheckinDiarioService(idUsuario, dados) {
     dados.usuario_id = idUsuario;
@@ -23,36 +23,52 @@ export async function CheckinDiarioService(idUsuario, dados) {
     let status = await EstatisticaOfensiva(idUsuario);
     let diasAtuais = status.ofensiva_atual;
 
+    let conquistasDesbloqueadasHoje = [];
+
+    async function tentarDesbloquear(conquista_id) {
+        let afetados = await adicionarConquistaService(idUsuario, conquista_id);
+        if (afetados > 0) {
+            conquistasDesbloqueadasHoje.push(conquista_id);
+        }
+    }
+
     if (diasAtuais >= 1) {
-        await adicionarConquistaService(idUsuario, 3);
+        await tentarDesbloquear(1);
+        await tentarDesbloquear(3);
+    }
+    if (diasAtuais >= 2) {
+        await tentarDesbloquear(2);
     }
     if (diasAtuais >= 3) {
-        await adicionarConquistaService(idUsuario, 4);
+        await tentarDesbloquear(4);
     }
     if (diasAtuais >= 7) {
-        await adicionarConquistaService(idUsuario, 5);
+        await tentarDesbloquear(5);
     }
     if (diasAtuais >= 30) {
-        await adicionarConquistaService(idUsuario, 6);
+        await tentarDesbloquear(6);
     }
     if (diasAtuais >= 60) {
-        await adicionarConquistaService(idUsuario, 7);
+        await tentarDesbloquear(7);
     }
     if (diasAtuais >= 100) {
-        await adicionarConquistaService(idUsuario, 8);
+        await tentarDesbloquear(8);
     }
 
-    return id;
+    return {
+        id_checkin: id,
+        novasConquistas: conquistasDesbloqueadasHoje,
+    };
 }
 
-export async function getCheckins(idUsuario) { 
+export async function getCheckins(idUsuario) {
     if (!idUsuario || isNaN(idUsuario)) {
         throw new Error(`O ID que você digitou está errado ou não existe`);
     }
 
     let registro = await db.buscarCheckIns(idUsuario);
     if (registro.length === 0) {
-       return []
+        return [];
     }
     return registro;
 }
@@ -123,14 +139,13 @@ export async function EstatisticaOfensiva(idUsuario) {
 
         if (diferencaEntreEles === 1) {
             ofensivaAtual++;
-        }
-        else if (diferencaEntreEles > 1) {
+        } else if (diferencaEntreEles > 1) {
             break;
         }
     }
 
-    return { 
-        total_dias: TotalDias, 
-        ofensiva_atual: ofensivaAtual 
+    return {
+        total_dias: TotalDias,
+        ofensiva_atual: ofensivaAtual,
     };
 }

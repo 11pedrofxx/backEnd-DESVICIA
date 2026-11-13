@@ -21,9 +21,9 @@ endpoints.post('/conquistas/vincular', async (req, resp) => {
     }
 });
 
-endpoints.get('/conquistas', async (req, resp) => {
+endpoints.get('/conquistas/:id', async (req, resp) => {
     try {
-        const idUsuario = req.user.id;
+        const idUsuario = req.params.id;
         const conquistas = await db.listarConquistasService(idUsuario);
 
         resp.status(200).send(conquistas);

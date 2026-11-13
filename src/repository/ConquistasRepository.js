@@ -13,13 +13,14 @@ export async function VincularConquista(idUsuario, conquista_id) {
 export async function listarConquistasUsuario(idUsuario) {
     const command = `
         select 
-            conquistas.id, 
-            conquistas.titulo, 
-            conquistas.dias_meta 
-        from conquistas
-        inner join usuarios_conquistas on conquistas.id = usuarios_conquistas.conquista_id
-        where usuarios_conquistas.usuario_id = ?
-        order by conquistas.dias_meta asc;
+            c.id, 
+            c.titulo, 
+            c.dias_meta,
+            uc.data_conquista
+        from conquistas c
+        left join usuarios_conquistas uc 
+            ON c.id = uc.conquista_id AND uc.usuario_id = ?
+        ORDER BY c.dias_meta ASC;
     `;
     let resposta = await connection.query(command, [idUsuario]);
     return resposta[0];
