@@ -10,10 +10,10 @@ endpoints.post('/checkin', async (req, resp) => {
         let idUsuario = req.user.id;
         let dados = req.body;
 
-        let id = await db.CheckinDiarioService(idUsuario, dados);
+        let resposta = await db.CheckinDiarioService(idUsuario, dados);
         resp.send({
             msg: `Checkin Diário feito com Sucesso.`,
-            id
+            novasConquistas: resposta.novasConquistas
         });
     } catch (error) {
         resp.status(400).send(ErrorDefault(error));
