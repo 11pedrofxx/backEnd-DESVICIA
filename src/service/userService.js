@@ -297,3 +297,80 @@ export async function CompletarPrimeiroAcessoService(idUsuario, dados) {
         dados.cidade.trim()
     );
 }
+
+export async function solicitarAlteracaoEmailService(idUsuario, email) {
+    email = email?.trim().toLowerCase();
+
+    if (!email || !email.includes('@')) {
+        throw new Error("Digite um e-mail válido.");
+    }
+
+    const usuarioExistente = await db.buscarUsuarioPorEmail(email);
+
+    if (usuarioExistente && Number(usuarioExistente.id) === Number(idUsuario)) {
+        throw new Error("Digite um e-mail diferente do atual.");
+    }
+
+    if (usuarioExistente) {
+        throw new Error("Este e-mail já está sendo utilizado.");
+    }
+
+    const codigo = crypto.randomInt(100000, 1000000).toString();
+    const expiracao = new Date(Date.now() + 15 * 60 * 1000);
+
+    await db.codigoRecuperacao(codigo, expiracao, idUsuario);
+
+    return {
+        email,
+        codigo
+    };
+}
+
+export async function confirmarAlteracaoEmailService(idUsuario, email, codigo) {
+    email = email?.trim().toLowerCase();
+    const codigoFormatado = Array.isArray(codigo) ? codigo.join('') : String(codigo || '').trim();
+
+    if (!email || !email.includes('@')) {
+        throw new Error("Digite um e-mail válido.");
+    }
+
+    if (!codigoFormatado) {
+        throw new Error("Código de verificação obrigatório.");
+    }
+
+    const usuarioExistente = await db.buscarUsuarioPorEmail(email);
+    if (usuarioExistente && Number(usuarioExistente.id) !== Number(idUsuario)) {
+        throw new Error("Este e-mail já está sendo utilizado.");
+    }
+
+    const usuario = await db.buscarUsuarioPorID(idUsuario);
+    if (!usuario || !usuario.codigo_recuperacao || String(usuario.codigo_recuperacao) !== codigoFormatado) {
+        throw new Error("Código de verificação inválido ou expirado.");
+    }
+
+    if (!usuario.expiracao_codigo || new Date() > new Date(usuario.expiracao_codigo)) {
+        throw new Error("Código de verificação inválido ou expirado.");
+    }
+
+    await db.atualizarEmailUsuario(idUsuario, email);
+
+    return {
+        mensagem: "E-mail atualizado com sucesso!",
+        email
+    };
+}
+
+export async function alterarNomeService(idUsuario, nome) {
+    const nomeLimpo = nome?.trim();
+
+    if (!nomeLimpo || nomeLimpo.length < 2) {
+        throw new Error("Digite um nome válido.");
+    }
+
+    await db.atualizarNomeUsuario(idUsuario, nomeLimpo);
+
+    return {
+        mensagem: "Nome atualizado com sucesso!",
+        nome: nomeLimpo
+    };
+}

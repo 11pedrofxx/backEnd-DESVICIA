@@ -196,3 +196,35 @@ export async function SalvarPrimeiroAcesso(idUsuario, nomeExibicao, vicioPrincip
 
     return resposta.affectedRows;
 }
+
+export async function atualizarEmailUsuario(idUsuario, email) {
+    const command = `
+        update usuarios
+        set email = ?,
+            codigo_recuperacao = null,
+            expiracao_codigo = null
+        where id = ?
+    `;
+
+    const [resposta] = await connection.query(command, [
+        normalizarEmail(email),
+        idUsuario
+    ]);
+
+    return resposta.affectedRows;
+}
+
+export async function atualizarNomeUsuario(idUsuario, nome) {
+    const command = `
+        update usuarios
+        set nome = ?
+        where id = ?
+    `;
+
+    const [resposta] = await connection.query(command, [
+        nome.trim(),
+        idUsuario
+    ]);
+
+    return resposta.affectedRows;
+}

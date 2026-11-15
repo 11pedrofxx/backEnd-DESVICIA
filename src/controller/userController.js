@@ -180,4 +180,49 @@ endpoints.put('/usuario/primeiro-acesso', getAuthentication(), async (req, resp)
     }
 });
 
+endpoints.post('/usuario/solicitar-alteracao-email', getAuthentication(), async (req, resp) => {
+    try {
+        const idUsuario = req.user.id;
+        const { email } = req.body;
+
+        const respo = await db.solicitarAlteracaoEmailService(idUsuario, email);
+        await enviarEmailCodigo(respo.email, respo.codigo, 'Confirme seu e-mail novo');
+
+        resp.status(200).send({
+            mensagem: 'Código de verificação enviado para o novo e-mail.',
+            email: respo.email
+        });
+    } catch (error) {
+        resp.status(400).send(ErrorDefault(error));
+    }
+});
+
+endpoints.put('/usuario/alterar-email', getAuthentication(), async (req, resp) => {
+    try {
+        const idUsuario = req.user.id;
+        const { email, codigo } = req.body;
+
+        const resultado = await db.confirmarAlteracaoEmailService(idUsuario, email, codigo);
+
+        resp.status(200).send(resultado);
+    } catch (error) {
+        const status = error.code === "ER_DUP_ENTRY" ? 409 : 400;
+
+        resp.status(status).send(ErrorDefault(error));
+    }
+});
+
+endpoints.put('/usuario/alterar-nome', getAuthentication(), async (req, resp) => {
+    try {
+        const idUsuario = req.user.id;
+        const { nome } = req.body;
+
+        const resultado = await db.alterarNomeService(idUsuario, nome);
+
+        resp.status(200).send(resultado);
+    } catch (error) {
+        resp.status(400).send(ErrorDefault(error));
+    }
+});
+
 export default endpoints;

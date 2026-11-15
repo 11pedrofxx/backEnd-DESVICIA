@@ -32,24 +32,34 @@ export async function enviarEmailRecuperacao(emailDestino, linkRecuperacao) {
     });
 }
 
-export async function enviarEmailCodigo(emailDestino, codigo) {
+export async function enviarEmailCodigo(emailDestino, codigo, tituloPersonalizado) {
+    const ehNovoEmail = Boolean(tituloPersonalizado);
+    const textoPrincipal = ehNovoEmail
+        ? 'Seu código de verificação para confirmar o seu novo e-mail é:'
+        : 'Seu código de verificação para confirmar a criação da sua conta é:';
+    const textoRodape = ehNovoEmail
+        ? 'Este código expira em <strong>15 minutos</strong>. Se você não solicitou esta alteração, desconsidere este e-mail.'
+        : 'Este código expira em <strong>15 minutos</strong>. Se você não solicitou este cadastro, desconsidere este e-mail.';
+    const assunto = ehNovoEmail
+        ? `${tituloPersonalizado} - DesVicia`
+        : 'Código de Confirmação - DesVicia';
 
     const html = `
         <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px;">
             <h2 style="color: #15499C; text-align: center;">DesVicia</h2>
             <p>Olá!</p>
-            <p>Seu código de verificação para confirmar a criação da sua conta é:</p>
+            <p>${textoPrincipal}</p>
             <div style="background-color: #f4f6f9; padding: 15px; text-align: center; border-radius: 6px; margin: 20px 0;">
                 <span style="font-size: 32px; font-weight: bold; letter-spacing: 6px; color: #15499C;">${codigo}</span>
             </div>
-            <p style="font-size: 13px; color: #665;">Este código expira em <strong>15 minutos</strong>. Se você não solicitou este cadastro, desconsidere este e-mail.</p>
+            <p style="font-size: 13px; color: #665;">${textoRodape}</p>
         </div>
     `;
 
     await transporter.sendMail({
         from: '"DesVicia" <desviciaa@gmail.com>',
         to: emailDestino,
-        subject: 'Código de Confirmação - DesVicia',
+        subject: assunto,
         html: html
     });
 }
