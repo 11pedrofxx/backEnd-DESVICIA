@@ -10,7 +10,6 @@ export function generateToken(userInfo) {
 
   return jwt.sign(payload, KEY, { expiresIn: '8h' });
 }
-
 export function autenticarAdmin(req, resp, next) {
     try {
         const header = req.headers['x-access-token'];
@@ -19,14 +18,9 @@ export function autenticarAdmin(req, resp, next) {
             return resp.status(401).send({ erro: 'Token não fornecido.' });
         }
 
-        const parts = header.split(' ');
-        if (parts.length !== 2) {
-            return resp.status(401).send({ erro: 'Erro no formato do token.' });
-        }
-
-        const [scheme, token] = parts;
-        if (!/^Bearer$/i.test(scheme)) {
-            return resp.status(401).send({ erro: 'Token mal formatado.' });
+        let token = header;
+        if (header.startsWith('Bearer ')) {
+            token = header.split(' ')[1];
         }
 
         const KEY = process.env.JWT_SECRET;

@@ -5,7 +5,7 @@ import { autenticarAdmin } from "../utils/jwt.js";
 
 const endpoints = Router();
 
-endpoints.post('/loginADM' , async (req, resp) => {
+endpoints.post('/acesso_adm' , async (req, resp) => {
     try {
         let email = req.body.email;
         let senha = req.body.senha;
@@ -49,3 +49,37 @@ endpoints.get('/TodosCheckins', autenticarAdmin, async (req, resp) => {
     }
 
 })
+
+endpoints.get('/mediaOfensiva', autenticarAdmin, async (req, resp) => {
+    try {
+        let media = await db.SequenciaMedia();
+        resp.send(media);
+    } catch (error) {
+        resp.status(400).send(ErrorDefault(error));
+    }
+})
+
+endpoints.get('/mediaGatilho' , autenticarAdmin, async (req, resp) => {
+
+    try {
+        let media = await db.GatilhosService();
+        resp.send(media);
+    } catch (error) {
+        resp.status(400).send(ErrorDefault(error));
+    }
+
+})
+
+endpoints.get('/mediaHumor' , autenticarAdmin, async (req, resp) => {
+
+    try {
+        let media = await db.MediaHumorService();
+        resp.send(media);
+    } catch (error) {
+        resp.status(400).send(ErrorDefault(error));
+    }
+
+})
+
+
+export default endpoints
