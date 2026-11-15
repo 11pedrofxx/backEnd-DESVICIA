@@ -10,6 +10,37 @@ export function generateToken(userInfo) {
 
   return jwt.sign(payload, KEY, { expiresIn: '8h' });
 }
+export function autenticarAdmin(req, resp, next) {
+    try {
+        const header = req.headers['x-access-token'];
+
+        if (!header) {
+            return resp.status(401).send({ erro: 'Token não fornecido.' });
+        }
+
+        let token = header;
+        if (header.startsWith('Bearer ')) {
+            token = header.split(' ')[1];
+        }
+
+        const KEY = process.env.JWT_SECRET;
+
+        jwt.verify(token, KEY, (err, decoded) => {
+            if (err) {
+                return resp.status(401).send({ erro: 'Token inválido ou expirado.' });
+            }
+
+            if (decoded.tipo && decoded.tipo.toLowerCase() !== 'admin') {
+                return resp.status(403).send({ erro: 'Acesso negado. Requer privilégios de Administrador.' });
+            }
+
+            next();
+        });
+
+    } catch (error) {
+        resp.status(401).send({ erro: 'Falha na autenticação.' });
+    }
+}
 
 function extractToken(req) {
   let token = req.headers['x-access-token'] || req.headers['authorization'] || req.query['x-access-token'];

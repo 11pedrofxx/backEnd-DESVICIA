@@ -8,8 +8,10 @@ import Estrategias from './controller/estrategiasController.js';
 import Contatos from './controller/contatosEmergController.js'
 import Conquistas from './controller/ConquistasController.js'
 import Postagens from './controller/PostagensController.js';
+import Admin from './controller/adminController.js';
 
 export function AddRoutes(api) {
+    api.use(Admin)
     api.use(UserController);
     api.use(VicioController);
     api.use(UserVicio);
