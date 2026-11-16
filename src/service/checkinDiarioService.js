@@ -100,6 +100,15 @@ export async function deleteCheckin(idCheckin, idUsuario) {
     return linhasAfetadas;
 }
 
+function arrumarData(valor) {
+    let texto = valor instanceof Date
+        ? valor.toISOString().slice(0, 10)
+        : String(valor).slice(0, 10);
+
+    let [ano, mes, dia] = texto.split('-').map(Number);
+    return new Date(ano, mes - 1, dia);
+}
+
 export async function EstatisticaOfensiva(idUsuario) {
     if (!idUsuario || isNaN(idUsuario)) {
         throw new Error(`O ID que você digitou está errado ou não existe`);
@@ -114,14 +123,13 @@ export async function EstatisticaOfensiva(idUsuario) {
     let TotalDias = checkins.length;
     let ofensivaAtual = 0;
 
-    let hoje = new Date();
-    hoje.setHours(0, 0, 0, 0);
+    let agoraBrasil = new Date(Date.now() - 3 * 60 * 60 * 1000);
+    let hoje = arrumarData(agoraBrasil);
 
-    let dataMaisRecente = new Date(checkins[0].data_checkin);
-    dataMaisRecente.setHours(0, 0, 0, 0);
+    let dataMaisRecente = arrumarData(checkins[0].data_checkin);
 
     const umDia = 1000 * 60 * 60 * 24;
-    let diferencaParaHoje = (hoje - dataMaisRecente) / umDia;
+    let diferencaParaHoje = Math.round((hoje - dataMaisRecente) / umDia);
 
     if (diferencaParaHoje > 1) {
         return { total_dias: TotalDias, ofensiva_atual: 0 };
@@ -129,13 +137,10 @@ export async function EstatisticaOfensiva(idUsuario) {
     ofensivaAtual = 1;
 
     for (let i = 0; i < checkins.length - 1; i++) {
-        let dataAtual = new Date(checkins[i].data_checkin);
-        dataAtual.setHours(0, 0, 0, 0);
+        let dataAtual = arrumarData(checkins[i].data_checkin);
+        let dataAnterior = arrumarData(checkins[i + 1].data_checkin);
 
-        let dataAnterior = new Date(checkins[i + 1].data_checkin);
-        dataAnterior.setHours(0, 0, 0, 0);
-
-        let diferencaEntreEles = (dataAtual - dataAnterior) / umDia;
+        let diferencaEntreEles = Math.round((dataAtual - dataAnterior) / umDia);
 
         if (diferencaEntreEles === 1) {
             ofensivaAtual++;
