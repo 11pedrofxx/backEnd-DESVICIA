@@ -6,7 +6,7 @@ Plataforma de apoio à superação de vícios e à construção de hábitos saud
 
 O **DESVICIA** é um projeto de TCC desenvolvido como requisito para a conclusão do **Curso Técnico em Informática do Instituto Social Nossa Senhora de Fátima**.
 
-A plataforma busca auxiliar pessoas no processo de superação de vícios por meio do acompanhamento diário, desenvolvimento de hábitos saudáveis e ferramentas de apoio.
+A plataforma busca auxiliar pessoas no processo de superação de vícios por meio do acompanhamento diário, desenvolvimento de hábitos saudáveis e uma rede social focada em apoio.
 
 Este repositório contém o backend da aplicação, responsável pelo gerenciamento dos dados, autenticação dos usuários e comunicação com o frontend.
 
